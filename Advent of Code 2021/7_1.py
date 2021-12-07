@@ -15,16 +15,17 @@ def main():
 
 
 def solve(nums):
-	n = len(nums)
-	result = [0] * (max(nums) - min(nums) + 1)
-	for j in range(min(nums), max(nums) + 1):
-		for i in range(n):
-			diff = abs(nums[i] - j)
-			result[j] += diff * (diff + 1) / 2
-	return min(result)
+	nums.sort()
+	median1 = len(nums) // 2 - 1
+	median2 = len(nums) // 2
+	def cal(lastPosition):
+		total = 0
+		for num in nums:
+			diff = (num + lastPosition) * (abs(num - lastPosition)) // 2
 
-
-
+			total += diff
+		return total
+	return min(cal(nums[median1]), cal(nums[median2]))
 
 
 
