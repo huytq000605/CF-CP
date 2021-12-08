@@ -18,17 +18,10 @@ def solve(lines):
 		before, after = line.split("|")
 		before = before.split()
 		after = after.split()
-
-		for i, word in enumerate(before):
-			before[i] = "".join(sorted(word))
-		
-		for i, word in enumerate(after):
-			after[i] = "".join(sorted(word))
 		
 		for word in after:
 			if len(word) in [2,3,4,7]:
 				result += 1
-
 
 	return result
 
