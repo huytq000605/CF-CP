@@ -10,7 +10,6 @@ def get_string(): return sys.stdin.readline().strip()
 
 def main():
 	lines = sys.stdin.read().splitlines()
-
 	maxRow = 0
 	maxCol = 0
 
@@ -71,16 +70,6 @@ def solve(grid, instructions):
 			if grid[row][col] == 1:
 				result += 1
 	return result
-
-		
-	
-
-
-
-
-
-	
-	
 
 
 if __name__ == "__main__":
