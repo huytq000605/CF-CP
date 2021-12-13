@@ -72,16 +72,6 @@ def solve(grid, instructions):
 				grid[row][col] = "#"
 		print(grid[row][:maxCol])
 
-		
-	
-
-
-
-
-
-	
-	
-
 
 if __name__ == "__main__":
 	main()
