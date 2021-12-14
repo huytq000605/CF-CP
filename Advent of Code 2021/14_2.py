@@ -50,7 +50,10 @@ def solve(pair_count, commands, s):
 						next_pair_count[fromLetter][toLetter] -= freq
 						next_pair_count[insertLetter][toLetter] += freq
 		pair_count = next_pair_count
+
+
 	freq = collections.Counter()
+
 	for fromLetter in pair_count.keys():
 		for toLetter, num in pair_count[fromLetter].items():
 			freq[fromLetter] += num
