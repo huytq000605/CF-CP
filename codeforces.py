@@ -1,54 +1,47 @@
 from functools import lru_cache as cache
-from math import *
+import math
 from heapq import *
+
 import sys
 def get_int(): return int(input())
 def get_ints(): return map(int, sys.stdin.readline().strip().split())
 def get_list(): return list(map(int, sys.stdin.readline().strip().split()))
 def get_string(): return sys.stdin.readline().strip()
 
-dirs = {
-		"U": [-1, 0],
-		"D": [1, 0],
-		"L": [0, -1],
-		"R": [0, 1]
-	}
-
 def main():
 	testcases = get_int()
 	for i in range(testcases):
-		m, n = get_ints()
-		command = get_string()
-		print(solve(m, n, command))
+		n = get_int()
+		s = get_string()
+		print(solve(s, n))
 
-def solve(m, n, command):
-	k = len(command)
-	left = [0] * k
-	right = [0] * k
-	up = [0] * k
-	down = [0] * k
-	cur = [0,0]
-	for i in range(k):
-		d = dirs[command[i]]
-		cur[0] += d[0]
-		cur[1] += d[1]
-		if i > 0:
-			left[i] = left[i-1]
-			right[i] = right[i-1]
-			up[i] = up[i-1]
-			down[i] = down[i-1]
-		left[i] = max(left[i], -cur[1])
-		right[i] = max(right[i], cur[1])
-		up[i] = max(up[i], -cur[0])
-		down[i] = max(down[i], cur[0])
-	for i in range(k - 1, -1, -1):
-		# Greedy, if go out side the board => unvalid
-		if(left[i] + right[i] + 1 > n): continue
-		if(up[i] + down[i] + 1 > m): continue
-		# Because we know it cannot go outside
-		# Just pick a valid point from one side
-		return f"{up[i] + 1} {left[i] + 1} "
-	return "1 1"
+def solve(s, n):
+	result = math.inf
+	a = 0
+	b = 0
+	c = 0
+	start = 0
+	for i in range(n):
+		if s[i] == "a": a += 1
+		if s[i] == "b": b += 1
+		if s[i] == "c": c += 1
+
+		while i - start + 1 > 2 and (s[start] == 'b' or s[start] == 'c' or (s[start] == "a" and a - 1 > b and a - 1 > c)):
+			if s[start] == "a": a -= 1
+			if s[start] == "b": b -= 1
+			if s[start] == "c": c -= 1
+			start += 1
+
+		if b > a or c > a or b + c > a:
+			start = i + 1
+			a = b = c = 0
+		
+		if i - start + 1 >= 2 and a > b and a > c:
+			result = min(result, i - start + 1)
+	
+	if result == math.inf:
+		return -1
+	return result
 
 
 if __name__ == "__main__":
