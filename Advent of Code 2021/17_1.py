@@ -35,7 +35,6 @@ class BreakOutException(Exception):
 # y[0] <= y*n - n*(n+1)/2 <= y[1]
 def solve(x, y):
 	bestY = 0
-	work = 0
 	for x_v in range(1, x[1] + 1):
 		for y_v in range(-500, 500):
 			xVec, yVec = x_v, y_v
@@ -52,8 +51,9 @@ def solve(x, y):
 				if i >= x[0] and i <= x[1] and j >= y[0] and j <= y[1]:
 					ok = True
 			if ok:
-				work += 1
-	return work
+				bestY = max(bestY, best)
+					
+	return bestY
 
 if __name__ == "__main__":
 	main()
