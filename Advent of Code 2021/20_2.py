@@ -54,10 +54,13 @@ def solve(grid, lookup, m, n):
 					for c in range(col - 1, col + 2):
 						if r < 0 or r >= m or c < 0 or c >= n:
 							# See the first and the last from lookup string
+							# If first is # and last is .
 							if time % 2 == 0:
 								binary += "0"
 							else:
 								binary += "1"
+							# Else if first is . and last is #
+							# then just binary += "0"
 						else:
 							binary += str(grid[r][c])
 				nextGrid[row][col] = lookup[bin_to_dec(binary)]
@@ -71,10 +74,5 @@ def solve(grid, lookup, m, n):
 	print(grid[152])
 	return result
 
-
-
-
-
-	
 if __name__ == "__main__":
 	main()
