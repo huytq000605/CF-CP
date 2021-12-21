@@ -69,9 +69,5 @@ def solve(p1, p2):
 		return s1 * turns * 3
 
 
-
-
-
-	
 if __name__ == "__main__":
 	main()
