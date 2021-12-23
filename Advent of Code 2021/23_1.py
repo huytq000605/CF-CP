@@ -85,9 +85,6 @@ def solve(arr):
 
     return result
 
-
-
-
 	
 if __name__ == "__main__":
 	main()
