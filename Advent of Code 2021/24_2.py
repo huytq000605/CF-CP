@@ -66,7 +66,7 @@ def solve(ins):
             else:
                 return 'F'
 
-        for w in range(9, 0, -1):
+        for w in range(1, 10):
             values = {'x': x, 'y': y, 'z': z, 'w': w}
             for op, a, b in digits[ith]:
                 if op == "add":
