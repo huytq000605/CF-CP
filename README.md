@@ -1,2 +1,2 @@
 Advent of Code 2021
-![](./AOC-2021.png)
+![](./assets/AOC-2021.png)
