@@ -1,5 +1,4 @@
 from functools import lru_cache as cache
-from collections import Counter
 import math
 from heapq import *
 
@@ -11,17 +10,15 @@ def get_string(): return sys.stdin.readline().strip()
 
 def main():
 	testcases = get_int()
-	for i in range(testcases):
-		n, k = get_ints()
-		s = get_string()
-		print(solve(s, k, n))
+	for testcase in testcases:
+		n = get_int()
+		arr = get_ints()
+		print(solve(arr))
 
 
-def solve(s, k, n):
-	counter = Counter()
-	for l in s:
-		counter[l] += 1
-	
-	
+def solve(arr):
+	return max(arr) - min(arr)
+
+
 if __name__ == "__main__":
 	main()
