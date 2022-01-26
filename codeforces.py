@@ -12,43 +12,53 @@ def get_string(): return sys.stdin.readline().strip()
 def main():
 	testcases = get_int()
 	for i in range(testcases):
-		n, k = get_ints()
-		s = get_string()
-		print(solve(s, k, n))
+		get_string()
+		n, m = get_ints()
+		knew_numbers = []
+		for j in range(n):
+			knew_numbers.append(get_string())
+		new_numbers = get_string()
+		result = solve(knew_numbers, new_numbers, m)
+		if len(result) == 0:
+			print("-1")
+		else:
+			print(len(result))
+			for triplet in result:
+				print(triplet)
 
 
-def solve(s, k, n):
-	start = 1
-	end = n // k
-	count = Counter(s)
-	pairs = 0
-	ones = 0
-	for letter in count.keys():
-		if count[letter] % 2 == 0:
-			pairs += count[letter] // 2
-		else:
-			pairs += count[letter] // 2
-			ones += 1
-	while start < end:
-		mid = start + math.ceil((end - start + 1)/ 2)
-		current_ones = ones
-		current_pairs = pairs
-		invalid = False
-		for i in range(k):
-			current_pairs -= mid // 2
-			if mid %  2 == 1:
-				if current_ones > 0: current_ones -= 1
-				else: 
-					current_ones += 1
-					current_pairs -= 1
-			if current_pairs < 0:
-				invalid = True
-				break
-		if invalid:
-			end = mid - 1
-		else:
-			start = mid
-	return start
+def solve(knew_nums, new_nums, m):
+	strs = dict()
+	for idx, num in enumerate(knew_nums):
+		for i in range(m - 1):
+			two = num[i:i+2]
+			three = num[i:i+3]
+			strs[two] = f"{i+1} {i+2} {idx+1}"
+			if len(three) == 3:
+				strs[three] = f"{i+1} {i+3} {idx+1}"
+	
+	dp = [0 for i in range(m)]
+	dp.append(1)
+	dp.append(1)
+	for i in range(m - 2, -1, -1):
+		if dp[i+2] == 1 and new_nums[i:i+2] in strs:
+			dp[i] = 1
+		if dp[i+3] == 1 and new_nums[i:i+3] in strs:
+			dp[i] = 1
+	
+	if dp[0] == 1:
+		result = []
+		idx = 0
+		while idx < m:
+			if dp[idx + 2] == 1:
+				result.append(strs[new_nums[idx:idx+2]])
+				idx += 2
+			else:
+				result.append(strs[new_nums[idx:idx+3]])
+				idx += 3
+		return result
+	else:
+		return []
 
 if __name__ == "__main__":
 	main()
