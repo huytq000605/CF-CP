@@ -1,5 +1,5 @@
 from functools import lru_cache as cache
-from collections import Counter, defaultdict
+from collections import Counter
 import math
 from heapq import *
 
@@ -12,19 +12,23 @@ def get_string(): return sys.stdin.readline().strip()
 def main():
     testcases = get_int()
     for i in range(testcases):
-        n = get_int()
-        nums = get_list()
-        print(solve(nums, n))
+        s = get_string()
+        print(solve(s))
 
 
-def solve(nums, n):
-    total = sum(nums) - n
-    if total % 2:
-        return "errorgorn"
-    else:
-        return "maomao90"
-
-
+def solve(s):
+    if s[-1] != "B":
+        return "NO"
+    A = 0
+    B = 0
+    for l in s:
+        if l == "A":
+            A += 1
+        else:
+            B += 1
+            if B > A:
+                return "NO"
+    return "YES"
 
 if __name__ == "__main__":
     main()

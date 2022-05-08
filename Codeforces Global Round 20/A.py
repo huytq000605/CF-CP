@@ -24,7 +24,5 @@ def solve(nums, n):
     else:
         return "maomao90"
 
-
-
 if __name__ == "__main__":
     main()
