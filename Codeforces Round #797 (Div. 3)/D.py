@@ -13,28 +13,23 @@ def main():
     testcases = get_int()
     for i in range(testcases):
         n, k = get_ints()
-        ws = get_list()
-        print(solve(ws, n, k))
+        paper = get_string()
+        print(solve(paper, n, k))
 
 
-def solve(ws, n, k):
-    result = 0
-    for i in range(n):
-        result += ws[i] // k
-        ws[i] %= k
-    i, j = 0, n - 1
-    ws.sort()
-    while i < j:
-        if ws[i] + ws[j] == k:
-            result += 1
-            i += 1
-            j -= 1
-        elif ws[i] + ws[j] < k:
-            i += 1
-        else:
-            i += 1
-            j -= 1
-            result += 1
+def solve(paper, n, k):
+    result = math.inf
+    current_black = 0
+    for i in range(k):
+        if paper[i] == "B":
+            current_black += 1
+    result = min(result, k - current_black)
+    for i in range(k, n):
+        if paper[i-k] == "B":
+            current_black -= 1
+        if paper[i] == "B":
+            current_black += 1
+        result = min(result, k - current_black)
     return result
 
 
