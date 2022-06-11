@@ -18,38 +18,29 @@ def main():
         print(solve(n, s, p))
 
 def solve(n, s, p):
-    # Maybe better to use union find
+    count = [0 for i in range(n)]
     done = set()
-    # groups are circles
-    groups = []
     for i in range(n):
-        group = []
+        current = set()
         if i in done:
             continue
-        done.add(i)
-        group.append(i)
+        ori = p[i] - 1
         cur = p[i] - 1
-        group.append(cur)
+        current.add(i)
+        current.add(cur)
         done.add(cur)
         while cur != i:
-            cur = p[cur] - 1
-            group.append(cur)
+            print(i, cur)
+            cur = p[i] - 1
+            current.add(cur)
             done.add(cur)
-        group.pop() # Last element is i
-        groups.append(group)
-    
+        for idx in current:
+            count[idx] = len(current)
+
     result = 1
-    for group in groups:
-        st = ""
-        for i in group:
-            st += s[i]
-        original = st
-        st += st
-        i = 1
-        while st[i:i + len(original)] != original:
-            i += 1
-        result = lcm(result, i)
-    return int(result)
+    for i in range(n):
+        result = lcm(result, count[i])
+    return result
         
 def lcm(a, b):
     return a*b / gcd(a, b)
