@@ -1,8 +1,23 @@
+"""Sorted List
+==============
+
+:doc:`Sorted Containers<index>` is an Apache2 licensed Python sorted
+collections library, written in pure-Python, and fast as C-extensions. The
+:doc:`introduction<introduction>` is the best way to get started.
+
+Sorted list implementations:
+
+.. currentmodule:: sortedcontainers
+
+* :class:`SortedList`
+* :class:`SortedKeyList`
+
+"""
+# pylint: disable=too-many-lines
 from __future__ import print_function
-from functools import lru_cache as cache
-from collections import Counter, defaultdict
-import math
-from heapq import *
+
+import sys
+import traceback
 
 from bisect import bisect_left, bisect_right, insort
 from itertools import chain, repeat, starmap
@@ -10,15 +25,17 @@ from math import log
 from operator import add, eq, ne, gt, ge, lt, le, iadd
 from textwrap import dedent
 
-import sys
-import traceback
-from functools import wraps
-from sys import hexversion
+###############################################################################
+# BEGIN Python 2/3 Shims
+###############################################################################
 
 try:
     from collections.abc import Sequence, MutableSequence
 except ImportError:
     from collections import Sequence, MutableSequence
+
+from functools import wraps
+from sys import hexversion
 
 if hexversion < 0x03000000:
     from itertools import imap as map  # pylint: disable=redefined-builtin
@@ -60,12 +77,88 @@ def recursive_repr(fillvalue='...'):
 
     return decorating_function
 
+###############################################################################
+# END Python 2/3 Shims
+###############################################################################
+
 
 class SortedList(MutableSequence):
+    """Sorted list is a sorted mutable sequence.
+
+    Sorted list values are maintained in sorted order.
+
+    Sorted list values must be comparable. The total ordering of values must
+    not change while they are stored in the sorted list.
+
+    Methods for adding values:
+
+    * :func:`SortedList.add`
+    * :func:`SortedList.update`
+    * :func:`SortedList.__add__`
+    * :func:`SortedList.__iadd__`
+    * :func:`SortedList.__mul__`
+    * :func:`SortedList.__imul__`
+
+    Methods for removing values:
+
+    * :func:`SortedList.clear`
+    * :func:`SortedList.discard`
+    * :func:`SortedList.remove`
+    * :func:`SortedList.pop`
+    * :func:`SortedList.__delitem__`
+
+    Methods for looking up values:
+
+    * :func:`SortedList.bisect_left`
+    * :func:`SortedList.bisect_right`
+    * :func:`SortedList.count`
+    * :func:`SortedList.index`
+    * :func:`SortedList.__contains__`
+    * :func:`SortedList.__getitem__`
+
+    Methods for iterating values:
+
+    * :func:`SortedList.irange`
+    * :func:`SortedList.islice`
+    * :func:`SortedList.__iter__`
+    * :func:`SortedList.__reversed__`
+
+    Methods for miscellany:
+
+    * :func:`SortedList.copy`
+    * :func:`SortedList.__len__`
+    * :func:`SortedList.__repr__`
+    * :func:`SortedList._check`
+    * :func:`SortedList._reset`
+
+    Sorted lists use lexicographical ordering semantics when compared to other
+    sequences.
+
+    Some methods of mutable sequences are not supported and will raise
+    not-implemented error.
+
+    """
     DEFAULT_LOAD_FACTOR = 1000
 
 
     def __init__(self, iterable=None, key=None):
+        """Initialize sorted list instance.
+
+        Optional `iterable` argument provides an initial iterable of values to
+        initialize the sorted list.
+
+        Runtime complexity: `O(n*log(n))`
+
+        >>> sl = SortedList()
+        >>> sl
+        SortedList([])
+        >>> sl = SortedList([3, 1, 2, 5, 4])
+        >>> sl
+        SortedList([1, 2, 3, 4, 5])
+
+        :param iterable: initial values (optional)
+
+        """
         assert key is None
         self._len = 0
         self._load = self.DEFAULT_LOAD_FACTOR
@@ -79,6 +172,25 @@ class SortedList(MutableSequence):
 
 
     def __new__(cls, iterable=None, key=None):
+        """Create new sorted list or sorted-key list instance.
+
+        Optional `key`-function argument will return an instance of subtype
+        :class:`SortedKeyList`.
+
+        >>> sl = SortedList()
+        >>> isinstance(sl, SortedList)
+        True
+        >>> sl = SortedList(key=lambda x: -x)
+        >>> isinstance(sl, SortedList)
+        True
+        >>> isinstance(sl, SortedKeyList)
+        True
+
+        :param iterable: initial values (optional)
+        :param key: function used to extract comparison key (optional)
+        :return: sorted list or sorted-key list instance
+
+        """
         # pylint: disable=unused-argument
         if key is None:
             return object.__new__(cls)
@@ -91,10 +203,32 @@ class SortedList(MutableSequence):
 
     @property
     def key(self):  # pylint: disable=useless-return
+        """Function used to extract comparison key from values.
+
+        Sorted list compares values directly so the key function is none.
+
+        """
         return None
 
 
     def _reset(self, load):
+        """Reset sorted list load factor.
+
+        The `load` specifies the load-factor of the list. The default load
+        factor of 1000 works well for lists from tens to tens-of-millions of
+        values. Good practice is to use a value that is the cube root of the
+        list size. With billions of elements, the best load factor depends on
+        your usage. It's best to leave the load factor at the default until you
+        start benchmarking.
+
+        See :doc:`implementation` and :doc:`performance-scale` for more
+        information.
+
+        Runtime complexity: `O(n)`
+
+        :param int load: load-factor for sorted list sublists
+
+        """
         values = reduce(iadd, self._lists, [])
         self._clear()
         self._load = load
@@ -102,6 +236,11 @@ class SortedList(MutableSequence):
 
 
     def clear(self):
+        """Remove all values from sorted list.
+
+        Runtime complexity: `O(n)`
+
+        """
         self._len = 0
         del self._lists[:]
         del self._maxes[:]
@@ -112,6 +251,20 @@ class SortedList(MutableSequence):
 
 
     def add(self, value):
+        """Add `value` to sorted list.
+
+        Runtime complexity: `O(log(n))` -- approximate.
+
+        >>> sl = SortedList()
+        >>> sl.add(3)
+        >>> sl.add(1)
+        >>> sl.add(2)
+        >>> sl
+        SortedList([1, 2, 3])
+
+        :param value: value to add to sorted list
+
+        """
         _lists = self._lists
         _maxes = self._maxes
 
@@ -134,6 +287,14 @@ class SortedList(MutableSequence):
 
 
     def _expand(self, pos):
+        """Split sublists with length greater than double the load-factor.
+
+        Updates the index when the sublist length is less than double the load
+        level. This requires incrementing the nodes in a traversal from the
+        leaf node to the root. For an example traversal see
+        ``SortedList._loc``.
+
+        """
         _load = self._load
         _lists = self._lists
         _index = self._index
@@ -160,6 +321,18 @@ class SortedList(MutableSequence):
 
 
     def update(self, iterable):
+        """Update sorted list by adding all values from `iterable`.
+
+        Runtime complexity: `O(k*log(n))` -- approximate.
+
+        >>> sl = SortedList()
+        >>> sl.update([3, 1, 2])
+        >>> sl
+        SortedList([1, 2, 3])
+
+        :param iterable: iterable of values to add
+
+        """
         _lists = self._lists
         _maxes = self._maxes
         values = sorted(iterable)
@@ -187,6 +360,20 @@ class SortedList(MutableSequence):
 
 
     def __contains__(self, value):
+        """Return true if `value` is an element of the sorted list.
+
+        ``sl.__contains__(value)`` <==> ``value in sl``
+
+        Runtime complexity: `O(log(n))`
+
+        >>> sl = SortedList([1, 2, 3, 4, 5])
+        >>> 3 in sl
+        True
+
+        :param value: search for value in sorted list
+        :return: true if `value` in sorted list
+
+        """
         _maxes = self._maxes
 
         if not _maxes:
@@ -204,6 +391,21 @@ class SortedList(MutableSequence):
 
 
     def discard(self, value):
+        """Remove `value` from sorted list if it is a member.
+
+        If `value` is not a member, do nothing.
+
+        Runtime complexity: `O(log(n))` -- approximate.
+
+        >>> sl = SortedList([1, 2, 3, 4, 5])
+        >>> sl.discard(5)
+        >>> sl.discard(0)
+        >>> sl == [1, 2, 3, 4]
+        True
+
+        :param value: `value` to discard from sorted list
+
+        """
         _maxes = self._maxes
 
         if not _maxes:
@@ -222,6 +424,25 @@ class SortedList(MutableSequence):
 
 
     def remove(self, value):
+        """Remove `value` from sorted list; `value` must be a member.
+
+        If `value` is not a member, raise ValueError.
+
+        Runtime complexity: `O(log(n))` -- approximate.
+
+        >>> sl = SortedList([1, 2, 3, 4, 5])
+        >>> sl.remove(5)
+        >>> sl == [1, 2, 3, 4]
+        True
+        >>> sl.remove(0)
+        Traceback (most recent call last):
+          ...
+        ValueError: 0 not in list
+
+        :param value: `value` to remove from sorted list
+        :raises ValueError: if `value` is not in sorted list
+
+        """
         _maxes = self._maxes
 
         if not _maxes:
@@ -242,6 +463,19 @@ class SortedList(MutableSequence):
 
 
     def _delete(self, pos, idx):
+        """Delete value at the given `(pos, idx)`.
+
+        Combines lists that are less than half the load level.
+
+        Updates the index when the sublist length is more than half the load
+        level. This requires decrementing the nodes in a traversal from the
+        leaf node to the root. For an example traversal see
+        ``SortedList._loc``.
+
+        :param int pos: lists index
+        :param int idx: sublist index
+
+        """
         _lists = self._lists
         _maxes = self._maxes
         _index = self._index
@@ -284,6 +518,55 @@ class SortedList(MutableSequence):
 
 
     def _loc(self, pos, idx):
+        """Convert an index pair (lists index, sublist index) into a single
+        index number that corresponds to the position of the value in the
+        sorted list.
+
+        Many queries require the index be built. Details of the index are
+        described in ``SortedList._build_index``.
+
+        Indexing requires traversing the tree from a leaf node to the root. The
+        parent of each node is easily computable at ``(pos - 1) // 2``.
+
+        Left-child nodes are always at odd indices and right-child nodes are
+        always at even indices.
+
+        When traversing up from a right-child node, increment the total by the
+        left-child node.
+
+        The final index is the sum from traversal and the index in the sublist.
+
+        For example, using the index from ``SortedList._build_index``::
+
+            _index = 14 5 9 3 2 4 5
+            _offset = 3
+
+        Tree::
+
+                 14
+              5      9
+            3   2  4   5
+
+        Converting an index pair (2, 3) into a single index involves iterating
+        like so:
+
+        1. Starting at the leaf node: offset + alpha = 3 + 2 = 5. We identify
+           the node as a left-child node. At such nodes, we simply traverse to
+           the parent.
+
+        2. At node 9, position 2, we recognize the node as a right-child node
+           and accumulate the left-child in our total. Total is now 5 and we
+           traverse to the parent at position 0.
+
+        3. Iteration ends at the root.
+
+        The index is then the sum of the total and sublist index: 5 + 3 = 8.
+
+        :param int pos: lists index
+        :param int idx: sublist index
+        :return: index in sorted list
+
+        """
         if not pos:
             return idx
 
@@ -294,9 +577,16 @@ class SortedList(MutableSequence):
 
         total = 0
 
+        # Increment pos to point in the index to len(self._lists[pos]).
+
         pos += self._offset
 
+        # Iterate until reaching the root of the index tree at pos = 0.
+
         while pos:
+
+            # Right-child nodes are at odd indices. At such indices
+            # account the total below the left child node.
 
             if not pos & 1:
                 total += _index[pos - 1]
@@ -309,6 +599,60 @@ class SortedList(MutableSequence):
 
 
     def _pos(self, idx):
+        """Convert an index into an index pair (lists index, sublist index)
+        that can be used to access the corresponding lists position.
+
+        Many queries require the index be built. Details of the index are
+        described in ``SortedList._build_index``.
+
+        Indexing requires traversing the tree to a leaf node. Each node has two
+        children which are easily computable. Given an index, pos, the
+        left-child is at ``pos * 2 + 1`` and the right-child is at ``pos * 2 +
+        2``.
+
+        When the index is less than the left-child, traversal moves to the
+        left sub-tree. Otherwise, the index is decremented by the left-child
+        and traversal moves to the right sub-tree.
+
+        At a child node, the indexing pair is computed from the relative
+        position of the child node as compared with the offset and the remaining
+        index.
+
+        For example, using the index from ``SortedList._build_index``::
+
+            _index = 14 5 9 3 2 4 5
+            _offset = 3
+
+        Tree::
+
+                 14
+              5      9
+            3   2  4   5
+
+        Indexing position 8 involves iterating like so:
+
+        1. Starting at the root, position 0, 8 is compared with the left-child
+           node (5) which it is greater than. When greater the index is
+           decremented and the position is updated to the right child node.
+
+        2. At node 9 with index 3, we again compare the index to the left-child
+           node with value 4. Because the index is the less than the left-child
+           node, we simply traverse to the left.
+
+        3. At node 4 with index 3, we recognize that we are at a leaf node and
+           stop iterating.
+
+        4. To compute the sublist index, we subtract the offset from the index
+           of the leaf node: 5 - 3 = 2. To compute the index in the sublist, we
+           simply use the index remaining from iteration. In this case, 3.
+
+        The final index pair from our example is (2, 3) which corresponds to
+        index 8 in the sorted list.
+
+        :param int idx: index in sorted list
+        :return: (lists index, sublist index) pair
+
+        """
         if idx < 0:
             last_len = len(self._lists[-1])
 
@@ -349,6 +693,41 @@ class SortedList(MutableSequence):
 
 
     def _build_index(self):
+        """Build a positional index for indexing the sorted list.
+
+        Indexes are represented as binary trees in a dense array notation
+        similar to a binary heap.
+
+        For example, given a lists representation storing integers::
+
+            0: [1, 2, 3]
+            1: [4, 5]
+            2: [6, 7, 8, 9]
+            3: [10, 11, 12, 13, 14]
+
+        The first transformation maps the sub-lists by their length. The
+        first row of the index is the length of the sub-lists::
+
+            0: [3, 2, 4, 5]
+
+        Each row after that is the sum of consecutive pairs of the previous
+        row::
+
+            1: [5, 9]
+            2: [14]
+
+        Finally, the index is built by concatenating these lists together::
+
+            _index = [14, 5, 9, 3, 2, 4, 5]
+
+        An offset storing the start of the first row is also stored::
+
+            _offset = 3
+
+        When built, the index can be used for efficient indexing into the list.
+        See the comment and notes on ``SortedList._pos`` for details.
+
+        """
         row0 = list(map(len, self._lists))
 
         if len(row0) == 1:
@@ -383,6 +762,26 @@ class SortedList(MutableSequence):
 
 
     def __delitem__(self, index):
+        """Remove value at `index` from sorted list.
+
+        ``sl.__delitem__(index)`` <==> ``del sl[index]``
+
+        Supports slicing.
+
+        Runtime complexity: `O(log(n))` -- approximate.
+
+        >>> sl = SortedList('abcde')
+        >>> del sl[2]
+        >>> sl
+        SortedList(['a', 'b', 'd', 'e'])
+        >>> del sl[:2]
+        >>> sl
+        SortedList(['d', 'e'])
+
+        :param index: integer or slice for indexing
+        :raises IndexError: if index out of range
+
+        """
         if isinstance(index, slice):
             start, stop, step = index.indices(self._len)
 
@@ -415,6 +814,27 @@ class SortedList(MutableSequence):
 
 
     def __getitem__(self, index):
+        """Lookup value at `index` in sorted list.
+
+        ``sl.__getitem__(index)`` <==> ``sl[index]``
+
+        Supports slicing.
+
+        Runtime complexity: `O(log(n))` -- approximate.
+
+        >>> sl = SortedList('abcde')
+        >>> sl[1]
+        'b'
+        >>> sl[-1]
+        'e'
+        >>> sl[2:5]
+        ['c', 'd', 'e']
+
+        :param index: integer or slice for indexing
+        :return: value or list of values
+        :raises IndexError: if index out of range
+
+        """
         _lists = self._lists
 
         if isinstance(index, slice):
@@ -485,23 +905,83 @@ class SortedList(MutableSequence):
 
 
     def __setitem__(self, index, value):
+        """Raise not-implemented error.
+
+        ``sl.__setitem__(index, value)`` <==> ``sl[index] = value``
+
+        :raises NotImplementedError: use ``del sl[index]`` and
+            ``sl.add(value)`` instead
+
+        """
         message = 'use ``del sl[index]`` and ``sl.add(value)`` instead'
         raise NotImplementedError(message)
 
 
     def __iter__(self):
+        """Return an iterator over the sorted list.
+
+        ``sl.__iter__()`` <==> ``iter(sl)``
+
+        Iterating the sorted list while adding or deleting values may raise a
+        :exc:`RuntimeError` or fail to iterate over all values.
+
+        """
         return chain.from_iterable(self._lists)
 
 
     def __reversed__(self):
+        """Return a reverse iterator over the sorted list.
+
+        ``sl.__reversed__()`` <==> ``reversed(sl)``
+
+        Iterating the sorted list while adding or deleting values may raise a
+        :exc:`RuntimeError` or fail to iterate over all values.
+
+        """
         return chain.from_iterable(map(reversed, reversed(self._lists)))
 
 
     def reverse(self):
+        """Raise not-implemented error.
+
+        Sorted list maintains values in ascending sort order. Values may not be
+        reversed in-place.
+
+        Use ``reversed(sl)`` for an iterator over values in descending sort
+        order.
+
+        Implemented to override `MutableSequence.reverse` which provides an
+        erroneous default implementation.
+
+        :raises NotImplementedError: use ``reversed(sl)`` instead
+
+        """
         raise NotImplementedError('use ``reversed(sl)`` instead')
 
 
     def islice(self, start=None, stop=None, reverse=False):
+        """Return an iterator that slices sorted list from `start` to `stop`.
+
+        The `start` and `stop` index are treated inclusive and exclusive,
+        respectively.
+
+        Both `start` and `stop` default to `None` which is automatically
+        inclusive of the beginning and end of the sorted list.
+
+        When `reverse` is `True` the values are yielded from the iterator in
+        reverse order; `reverse` defaults to `False`.
+
+        >>> sl = SortedList('abcdefghij')
+        >>> it = sl.islice(2, 6)
+        >>> list(it)
+        ['c', 'd', 'e', 'f']
+
+        :param int start: start index (inclusive)
+        :param int stop: stop index (exclusive)
+        :param bool reverse: yield values in reverse order
+        :return: iterator
+
+        """
         _len = self._len
 
         if not _len:
@@ -526,6 +1006,16 @@ class SortedList(MutableSequence):
 
 
     def _islice(self, min_pos, min_idx, max_pos, max_idx, reverse):
+        """Return an iterator that slices sorted list using two index pairs.
+
+        The index pairs are (min_pos, min_idx) and (max_pos, max_idx), the
+        first inclusive and the latter exclusive. See `_pos` for details on how
+        an index is converted to an index pair.
+
+        When `reverse` is `True`, values are yielded from the iterator in
+        reverse order.
+
+        """
         _lists = self._lists
 
         if min_pos > max_pos:
@@ -581,6 +1071,31 @@ class SortedList(MutableSequence):
 
     def irange(self, minimum=None, maximum=None, inclusive=(True, True),
                reverse=False):
+        """Create an iterator of values between `minimum` and `maximum`.
+
+        Both `minimum` and `maximum` default to `None` which is automatically
+        inclusive of the beginning and end of the sorted list.
+
+        The argument `inclusive` is a pair of booleans that indicates whether
+        the minimum and maximum ought to be included in the range,
+        respectively. The default is ``(True, True)`` such that the range is
+        inclusive of both minimum and maximum.
+
+        When `reverse` is `True` the values are yielded from the iterator in
+        reverse order; `reverse` defaults to `False`.
+
+        >>> sl = SortedList('abcdefghij')
+        >>> it = sl.irange('c', 'f')
+        >>> list(it)
+        ['c', 'd', 'e', 'f']
+
+        :param minimum: minimum value to start iterating
+        :param maximum: maximum value to stop iterating
+        :param inclusive: pair of booleans
+        :param bool reverse: yield values in reverse order
+        :return: iterator
+
+        """
         _maxes = self._maxes
 
         if not _maxes:
@@ -638,10 +1153,34 @@ class SortedList(MutableSequence):
 
 
     def __len__(self):
+        """Return the size of the sorted list.
+
+        ``sl.__len__()`` <==> ``len(sl)``
+
+        :return: size of sorted list
+
+        """
         return self._len
 
 
     def bisect_left(self, value):
+        """Return an index to insert `value` in the sorted list.
+
+        If the `value` is already present, the insertion point will be before
+        (to the left of) any existing values.
+
+        Similar to the `bisect` module in the standard library.
+
+        Runtime complexity: `O(log(n))` -- approximate.
+
+        >>> sl = SortedList([10, 11, 12, 13, 14])
+        >>> sl.bisect_left(12)
+        2
+
+        :param value: insertion index of value in sorted list
+        :return: index
+
+        """
         _maxes = self._maxes
 
         if not _maxes:
@@ -657,6 +1196,23 @@ class SortedList(MutableSequence):
 
 
     def bisect_right(self, value):
+        """Return an index to insert `value` in the sorted list.
+
+        Similar to `bisect_left`, but if `value` is already present, the
+        insertion point will be after (to the right of) any existing values.
+
+        Similar to the `bisect` module in the standard library.
+
+        Runtime complexity: `O(log(n))` -- approximate.
+
+        >>> sl = SortedList([10, 11, 12, 13, 14])
+        >>> sl.bisect_right(12)
+        3
+
+        :param value: insertion index of value in sorted list
+        :return: index
+
+        """
         _maxes = self._maxes
 
         if not _maxes:
@@ -675,6 +1231,18 @@ class SortedList(MutableSequence):
 
 
     def count(self, value):
+        """Return number of occurrences of `value` in the sorted list.
+
+        Runtime complexity: `O(log(n))` -- approximate.
+
+        >>> sl = SortedList([1, 2, 2, 3, 3, 3, 4, 4, 4, 4])
+        >>> sl.count(3)
+        3
+
+        :param value: value to count in sorted list
+        :return: count
+
+        """
         _maxes = self._maxes
 
         if not _maxes:
@@ -703,24 +1271,74 @@ class SortedList(MutableSequence):
 
 
     def copy(self):
+        """Return a shallow copy of the sorted list.
+
+        Runtime complexity: `O(n)`
+
+        :return: new sorted list
+
+        """
         return self.__class__(self)
 
     __copy__ = copy
 
 
     def append(self, value):
+        """Raise not-implemented error.
+
+        Implemented to override `MutableSequence.append` which provides an
+        erroneous default implementation.
+
+        :raises NotImplementedError: use ``sl.add(value)`` instead
+
+        """
         raise NotImplementedError('use ``sl.add(value)`` instead')
 
 
     def extend(self, values):
+        """Raise not-implemented error.
+
+        Implemented to override `MutableSequence.extend` which provides an
+        erroneous default implementation.
+
+        :raises NotImplementedError: use ``sl.update(values)`` instead
+
+        """
         raise NotImplementedError('use ``sl.update(values)`` instead')
 
 
     def insert(self, index, value):
+        """Raise not-implemented error.
+
+        :raises NotImplementedError: use ``sl.add(value)`` instead
+
+        """
         raise NotImplementedError('use ``sl.add(value)`` instead')
 
 
     def pop(self, index=-1):
+        """Remove and return value at `index` in sorted list.
+
+        Raise :exc:`IndexError` if the sorted list is empty or index is out of
+        range.
+
+        Negative indices are supported.
+
+        Runtime complexity: `O(log(n))` -- approximate.
+
+        >>> sl = SortedList('abcde')
+        >>> sl.pop()
+        'e'
+        >>> sl.pop(2)
+        'c'
+        >>> sl
+        SortedList(['a', 'b', 'd'])
+
+        :param int index: index of value (default -1)
+        :return: value
+        :raises IndexError: if index is out of range
+
+        """
         if not self._len:
             raise IndexError('pop index out of range')
 
@@ -759,6 +1377,33 @@ class SortedList(MutableSequence):
 
 
     def index(self, value, start=None, stop=None):
+        """Return first index of value in sorted list.
+
+        Raise ValueError if `value` is not present.
+
+        Index must be between `start` and `stop` for the `value` to be
+        considered present. The default value, None, for `start` and `stop`
+        indicate the beginning and end of the sorted list.
+
+        Negative indices are supported.
+
+        Runtime complexity: `O(log(n))` -- approximate.
+
+        >>> sl = SortedList('abcde')
+        >>> sl.index('d')
+        3
+        >>> sl.index('z')
+        Traceback (most recent call last):
+          ...
+        ValueError: 'z' is not in list
+
+        :param value: value in sorted list
+        :param int start: start index (default None, start of sorted list)
+        :param int stop: stop index (default None, end of sorted list)
+        :return: index of value
+        :raises ValueError: if value is not present
+
+        """
         _len = self._len
 
         if not _len:
@@ -1999,51 +2644,3 @@ class SortedKeyList(SortedList):
 
 
 SortedListWithKey = SortedKeyList
-def get_int(): return int(input())
-def get_ints(): return map(int, sys.stdin.readline().strip().split())
-def get_list(): return list(map(int, sys.stdin.readline().strip().split()))
-def get_string(): return sys.stdin.readline().strip()
-
-def main():
-    testcases = get_int()
-    for i in range(testcases):
-        get_string()
-        n, m = get_ints()
-        speed = get_list()
-        commands = []
-        while m > 0:
-            k, d = get_ints()
-            commands.append((k-1, d))
-            m -= 1
-        print(solve(speed, commands))
-
-def solve(speed, commands):
-    trains = SortedList()
-    result = []
-    for i, s in enumerate(speed):
-        if len(trains) == 0 or s < speed[trains[-1]]:
-            trains.add(i)
-    for k, d in commands:
-        speed[k] -= d
-        train_idx = trains.bisect_right(k)
-        # This is nothing on the left => Just insert it
-        if train_idx == 0:
-            trains.add(k)
-        # Check if the left train has speed > train we want to add
-        else:
-            prev_train_idx = train_idx - 1
-            prev_speed = speed[trains[prev_train_idx]]
-            if speed[k] < prev_speed:
-                trains.add(k)
-        # Go to the next idx after add (if add) then remove all
-        # the trains that have speed >= the train we've added
-        train_idx = trains.bisect_right(k)
-        while train_idx < len(trains) and speed[trains[train_idx]] >= speed[k]:
-            trains.pop(train_idx)
-        result.append(len(trains))
-    return " ".join(map(str, result))
-
-    
-
-if __name__ == "__main__":
-    main()
