@@ -1,4 +1,3 @@
-from __future__ import print_function
 from functools import lru_cache as cache
 from collections import Counter, defaultdict
 import math
