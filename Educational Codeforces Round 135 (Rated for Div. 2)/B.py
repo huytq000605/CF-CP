@@ -1,4 +1,4 @@
-from functools import lru_cache as cache
+from functools import lru_cache
 from collections import Counter, defaultdict
 import math
 from heapq import *
@@ -13,30 +13,19 @@ def get_string(): return sys.stdin.readline().strip()
 def main():
     testcases = get_int()
     for tc in range(testcases):
-        s = get_string()
-        print(solve(s))
+        n = get_int()
+        print(solve(n))
 
 
-def solve(s):
-    n = len(s)
-    skip = 0
-    draw = True
-
-    for i in range(n // 2):
-        if s[i] != s[n-1-i]:
-            draw = False
-            break
-        else:
-            skip += 1
-    if draw:
-        return "Draw"
-    for i in range(skip, n-skip, 2):
-        if s[i] != s[i+1]:
-            return "Alice"
-    return "Draw"
-
-
-
+def solve(n):
+    result = [i+1 for i in range(n)]
+    if n % 2 == 0:
+        for i in range(0, n-2, 2):
+            result[i], result[i+1] = result[i+1], result[i]
+    else:
+        for i in range(3, n-2, 2):
+            result[i], result[i+1] = result[i+1], result[i]
+    return " ".join(map(str, result))
 
 
 

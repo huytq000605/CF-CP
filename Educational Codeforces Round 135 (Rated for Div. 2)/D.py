@@ -16,7 +16,6 @@ def main():
         s = get_string()
         print(solve(s))
 
-
 def solve(s):
     n = len(s)
     skip = 0
@@ -34,11 +33,6 @@ def solve(s):
         if s[i] != s[i+1]:
             return "Alice"
     return "Draw"
-
-
-
-
-
 
 if __name__ == "__main__":
     main()
