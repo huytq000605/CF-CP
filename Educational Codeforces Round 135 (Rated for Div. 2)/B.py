@@ -17,7 +17,6 @@ def main():
         print(solve(n))
 
 
-
 def solve(n):
     result = [i+1 for i in range(n)]
     # What we need is n pairs with n-1

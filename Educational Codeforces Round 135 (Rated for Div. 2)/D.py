@@ -1,7 +1,6 @@
 from functools import lru_cache as cache
 from collections import Counter, defaultdict
 import math
-import bisect
 from heapq import *
 # from sortedcontainers import SortedSet, SortedList, SortedDict
 
@@ -16,7 +15,6 @@ def main():
     for tc in range(testcases):
         s = get_string()
         print(solve(s))
-
 
 def solve(s):
     n = len(s)
@@ -35,7 +33,6 @@ def solve(s):
         if s[i] != s[i+1]:
             return "Alice"
     return "Draw"
-
 
 if __name__ == "__main__":
     main()
