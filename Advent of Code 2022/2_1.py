@@ -19,21 +19,20 @@ class BreakOutException(Exception):
 def main():
     m = {"A": "R", "B": "P", "C": "S", "X": "R", "Y": "P", "Z": "S"}
     points = {"R": 1, "P": 2, "S": 3}
-    win = {"R": "P", "P": "S", "S": "R"}
-    lose = {"R": "S", "P": "R", "S": "P"}
     lines = sys.stdin.read().splitlines()
     result = 0 
     for line in lines:
         opp = m[line[0]]
-        res = line[2]
-        if res == "X":
-            result += points[lose[opp]]
-        elif res == "Y":
+        me = m[line[2]]
+        if opp == me:
             result += 3
-            result += points[opp]
-        else:
+        elif opp == "R" and me == "P":
             result += 6
-            result += points[win[opp]]
+        elif opp == "P" and me == "S":
+            result += 6
+        elif opp == "S" and me == "R":
+            result += 6
+        result += points[me]
         
     print(result)
 
