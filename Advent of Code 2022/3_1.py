@@ -19,15 +19,17 @@ class BreakOutException(Exception):
 def main():
     lines = sys.stdin.read().splitlines()
     result = 0
-    n = len(lines)
-    for i in range(0, n, 3):
-        s1, s2, s3 = set(lines[i]), set(lines[i+1]), set(lines[i+2])
-        c = list(set.intersection(s1, s2, s3))[0]
-        if c.isupper():
-            result += 26
-            c = c.lower()
-        result += ord(c) - ord('a') + 1
-        
+    for line in lines:
+        n = len(line)
+        s = set(line[:n//2])
+        for c in line[n//2:]:
+            if c in s:
+                bonus = 0
+                if c.isupper():
+                    bonus = 26
+                    c = c.lower()
+                result += ord(c) - ord('a') + 1 + bonus
+                break
 
     print(result)
 
