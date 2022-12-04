@@ -23,7 +23,7 @@ def main():
         i1, i2 = line.split(",")
         s1, e1 = list(map(int, i1.split("-")))
         s2, e2 = list(map(int, i2.split("-")))
-        if min(e1, e2) >= max(s1, s2):
+        if (s1 >= s2 and e1 <= e2) or (s2 >= s1 and e2 <= e1):
             result += 1
         
 
