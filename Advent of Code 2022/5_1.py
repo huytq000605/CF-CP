@@ -33,11 +33,8 @@ def main():
         num = int(line[1])
         fr = int(line[3]) - 1
         to = int(line[-1]) - 1
-        tmp = []
         for _ in range(num):
-            tmp.append(stacks[fr].pop())
-        while tmp:
-            stacks[to].append(tmp.pop())
+            stacks[to].append(stacks[fr].pop())
     result = ""
     for s in stacks:
         result += s[-1]
