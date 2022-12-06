@@ -22,12 +22,12 @@ def main():
     freq = defaultdict(int)
     for line in lines:
         for i, c in enumerate(line):
-            if i > 13:
-                freq[line[i-14]] -= 1
-                if freq[line[i-14]] == 0:
-                    freq.pop(line[i-14])
+            if i > 3:
+                freq[line[i-4]] -= 1
+                if freq[line[i-4]] == 0:
+                    freq.pop(line[i-4])
             freq[c] += 1
-            if len(freq) == 14:
+            if len(freq) == 4:
                 print(i+1)
                 return 
 
