@@ -47,7 +47,7 @@ def main():
                 continue
         idx += 1
     
-    result = 0
+    sizes = []
     def dfs(cur):
         nonlocal result
         size = 0
@@ -58,12 +58,15 @@ def main():
                 size += v
                 continue
             size += dfs(cur[k])
-        if size <= 100000:
-            result += size
+        sizes.append(size)
         return size
-            
+    
+    needed = 30000000 - (70000000 - dfs(fs))
+    result = math.inf
+    for size in sizes:
+        if size >= needed:
+            result = min(result, size)
 
-    dfs(fs)
     print(result)
 
 
