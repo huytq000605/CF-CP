@@ -19,31 +19,27 @@ class BreakOutException(Exception):
 
 def main():
     lines = sys.stdin.read().splitlines()
-    sprite = 1
-    result = 0
-    CRT = [["." for j in range(40)] for i in range(6)]
+    X = 1
     cycle = 0
-
-    def valid():
-        return abs(cycle % 40 - sprite) <= 1
-
-
+    result = 0
     for line in lines:
         if line.startswith("addx"):
             value = int(line[5:])
-            if valid():
-                CRT[cycle // 40][cycle % 40] = "#"
             cycle += 1
-            if valid():
-                CRT[cycle // 40][cycle % 40] = "#"
+            if cycle == 20 or (cycle > 20 and (cycle - 20) % 40 == 0):
+                print(cycle, X)
+                result += X * cycle
             cycle += 1
-            sprite += value
+            if cycle == 20 or (cycle > 20 and (cycle - 20) % 40 == 0):
+                print(cycle, X)
+                result += X * cycle
+            X += value
         else:
-            if valid():
-                CRT[cycle // 40][cycle % 40] = "#"
             cycle += 1
-    for CRTr in CRT:
-        print(CRTr)
+            if cycle == 20 or (cycle > 20 and (cycle - 20) % 40 == 0):
+                print(cycle, X)
+                result += X * cycle
+    print(result)
 
 
 
