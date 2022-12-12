@@ -21,38 +21,34 @@ def main():
     lines = sys.stdin.read().splitlines()
     m, n = len(lines), len(lines[0])
     grid = [[0 for j in range(n)] for i in range(m)]
-    starts = []
+    start = (0, 0)
     end = (0, 0)
     for r, line in enumerate(lines):
         for c, l in enumerate(line):
-            if l == "S" or l == "a":
-                starts.append((r, c))
+            if l == "S":
+                start = (r, c)
                 grid[r][c] = ord("a") - ord("a")
             elif l == "E":
                 end = (r, c)
                 grid[r][c] = ord("z") - ord("a")
             else:
                 grid[r][c] = ord(l) - ord("a")
-    def bfs(start):
-        q = deque([(start[0], start[1], 0)])
-        ds = [(0,1), (1,0), (-1, 0), (0, -1)]
-        seen = set([start])
-        while q:
-            r, c, s = q.popleft()
-            if r == end[0] and c == end[1]:
-                return s
-            for dr, dc in ds:
-                nr, nc = r + dr, c + dc
-                if nr < 0 or nc < 0 or nr >= m or nc >= n or grid[nr][nc] - grid[r][c] > 1:
-                    continue
-                if (nr, nc) not in seen:
-                    seen.add((nr, nc))
-                    q.append((nr, nc, s+1))
-        return math.inf
-    result = math.inf
-    for start in starts:
-        result = min(result, bfs(start))
-    print(result)
+
+    q = deque([(start[0], start[1], 0)])
+    ds = [(0,1), (1,0), (-1, 0), (0, -1)]
+    seen = set([start])
+    while q:
+        r, c, s = q.popleft()
+        if r == end[0] and c == end[1]:
+            print(s)
+            return
+        for dr, dc in ds:
+            nr, nc = r + dr, c + dc
+            if nr < 0 or nc < 0 or nr >= m or nc >= n or grid[nr][nc] - grid[r][c] > 1:
+                continue
+            if (nr, nc) not in seen:
+                seen.add((nr, nc))
+                q.append((nr, nc, s+1))
                 
 
 
