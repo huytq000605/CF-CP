@@ -69,24 +69,16 @@ def main():
         return 0
 
                 
-    packets = [[[2]], [[6]]]
+    pair = 0
     result = 0
     for i, line in enumerate(lines):
         if line == "":
+            pair += 1
             f, s = parseLine(lines[i+1]), parseLine(lines[i+2])
-            packets.append(f)
-            packets.append(s)
+            if cmp(f, s) >= 0:
+                result += pair
 
-    n = len(packets)
-    for i in range(n):
-        for j in range(i+1, n):
-            if cmp(packets[i], packets[j]) >= 0:
-                packets[i], packets[j] = packets[j], packets[i]
-    packets = reversed(packets)
-
-    for i, packet in enumerate(packets):
-        if packet == [[2]] or packet == [[6]]:
-            print(i+1)
+    print(result)
             
 
 
