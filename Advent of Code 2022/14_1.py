@@ -41,15 +41,10 @@ def main():
             elif c1 == c2:
                 for r in range(min(r1, r2), max(r1, r2) + 1):
                     grid[r][c1] = "#"
-    HIGHEST_ROW += 2
-    for c in range(1000):
-        grid[HIGHEST_ROW][c] = "#"
-
 
     result = 0
     while True:
         r,  c = 0, 500
-        s = 0
         while r < HIGHEST_ROW:
             if grid[r+1][c] == ".":
                 r += 1
@@ -63,13 +58,24 @@ def main():
                 grid[r][c] = "o"
                 result += 1
                 break
-            s += 1
-        if s == 0:
-            break
         if r >= HIGHEST_ROW:
             break
 
     print(result)
+        
+                
+
+
+
+    
+
+
+
+        
+
+
+
+
 
 if __name__ == "__main__":
     main()
