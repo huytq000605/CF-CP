@@ -65,7 +65,7 @@ def main():
 
         return res
     
-    print(dfs("AA", 26))
+    print(dfs("AA", 30))
 
             
 
@@ -76,4 +76,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
 
