@@ -52,7 +52,7 @@ def main():
             distances[u] = bfs(u, dict())
 
     opened = set()
-    def dfs(u, s, elephant):
+    def dfs(u, s):
         nonlocal distances
         res = 0
         for v, d in distances[u].items():
@@ -60,15 +60,12 @@ def main():
                 continue
             if s - d - 1 >= 0:
                 opened.add(v)
-                res = max(res, dfs(v, s - d - 1, elephant) + flow_rate[v] * (s - d - 1))
+                res = max(res, dfs(v, s - d - 1) + flow_rate[v] * (s - d - 1))
                 opened.remove(v)
-
-        if not elephant:
-            res = max(res, dfs("AA", 26, True))
 
         return res
     
-    print(dfs("AA", 26, False))
+    print(dfs("AA", 26))
 
             
 
@@ -79,3 +76,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
