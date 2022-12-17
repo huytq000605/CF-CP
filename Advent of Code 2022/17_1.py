@@ -40,9 +40,7 @@ def main():
         idx_rock %= len(rocks)
         return rock
     
-    times = 100000
-    max_row = 4 * times + 4 + 1
-    grid = [["." for j in range(7)] for i in range(max_row)]
+    grid = [["." for j in range(7)] for i in range(4 * 2022 + 4 + 1)]
 
     def next_rock(rock, pattern):
         dr, dc = pattern
@@ -55,43 +53,10 @@ def main():
             next_rock.append((nr, nc))
         return next_rock, True
 
-    def get_state():
-        nonlocal highest_rock, grid, idx_pattern, idx_rock
-        lowest = 0
-        cols = [1 for i in range(7)]
-        row = highest_rock
-        while row >= 0 and any(cols[col] == 1 for col in range(7)):
-            for col in range(7):
-                if not cols[col]:
-                    continue
-                if grid[row][col] == "#":
-                    cols[col] = 0
-            row -= 1
-        hash_str = f"{idx_pattern}_{idx_rock}_"
-        for r in range(row, highest_rock):
-            for c in range(7):
-                hash_str += grid[r][c]
-        return hash_str
-        
-
-    highest_rock = 0
-    seen = dict({get_state(): -1})
-    heights = dict()
-    # COUNT EACH CYCLE
-    # COUNT BEFORE CYCLE
-    # COUNT REMAINING AFTER CYCLE
-    cycle = 0
-    height_when_found_cycle = -1
-    count = 0
-    remaining = -1
-    before_cycle = -1
-    cycle_time = -1
-    times = 10**12
-
-
-    for time in range(times):
+    lowest = 0
+    for time in range(2022):
         rock = get_rock()
-        start = (highest_rock + 3, 2)
+        start = (lowest + 3, 2)
         rock_pos = []
         for p in rock:
             rock_pos.append((p[0] + start[0], p[1] + start[1]))
@@ -102,33 +67,25 @@ def main():
             rock_pos, fall = next_rock(rock_pos, (-1, 0))
             if not fall:
                 for r, c in rock_pos:
-                    highest_rock = max(highest_rock, r+1)
+                    lowest = max(lowest, r+1)
                     grid[r][c] = "#"
                 break
-        state = get_state()
-        count += 1
-        if cycle == 0 and state in seen:
-            cycle = time - seen[state]
-            count = 1
-            print("FOUND CYCLE =", cycle)
-            each_cycle = highest_rock - heights[seen[state]]
-            before_cycle = heights[seen[state]]
-            remaining = (times - seen[state]) % cycle
-            height_when_found_cycle = highest_rock
-            cycle_time = (times - seen[state]) // cycle
-            print(each_cycle, before_cycle)
+    print("result:", lowest)
 
 
-        if count == remaining:
-            print(before_cycle + each_cycle * cycle_time + highest_rock - height_when_found_cycle)
-            return
             
 
-        heights[time] = highest_rock
-        seen[state] = time
 
-            
-    print("result:", highest_rock)
+
+
+    
+
+
+
+
+
+
+
 
 if __name__ == "__main__":
     main()
