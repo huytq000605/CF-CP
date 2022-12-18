@@ -15,6 +15,8 @@ def get_list(): return list(map(int, sys.stdin.readline().strip().split()))
 def get_string(): return sys.stdin.readline().strip()
 
 
+sys.setrecursionlimit(10000)
+
 class BreakOutException(Exception):
     pass
 
