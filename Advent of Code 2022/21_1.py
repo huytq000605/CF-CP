@@ -22,27 +22,19 @@ class BreakOutException(Exception):
 def main():
     lines = sys.stdin.read().splitlines()
     monkeys = dict()
-    parents = defaultdict(set)
     for line in lines:
         line = line.split()
         monkey = line[0][:-1]
-        if monkey == "humn":
-            continue
         operation = False
         for op in "+-*/":
             if op in line:
                 operation = True
+        print(line)
         if operation:
             left = line[1]
             op = line[2]
             right = line[3]
-            if monkey == "root":
-                eq1 = left
-                eq2 = right
-            else:
-                monkeys[monkey] = [left, op, right]
-                parents[left].add(monkey)
-                parents[right].add(monkey)
+            monkeys[monkey] = [left, op, right]
         else:
             monkeys[monkey] = [int(line[1])]
 
@@ -52,7 +44,6 @@ def main():
         left = dfs(monkeys[u][0])
         right = dfs(monkeys[u][2])
         op = monkeys[u][1]
-
         if op == "+":
             result = left + right
         elif op == "-":
@@ -63,48 +54,10 @@ def main():
             result = left // right
         monkeys[u] = [result]
         return result
-    
-    def dfs2(u):
-        more = set()
-        for v in parents[u]:
-            for parent in dfs2(v):
-                more.add(parent)
-        parents[u].update(more)
-        return parents[u]
-    
-    humn_parents = dfs2("humn")
 
-    # dfs(eq1) use one of eq1 or eq2, the one doesn't depend on monkey named humn
-    dfs(eq2)
-
-    eq = monkeys[eq2][0]
-    u = eq1
-    # len == 1 if u == humn
-    while u in monkeys:
-        print(u)
-        left, op, right = monkeys[u]
-        if left in humn_parents:
-            if op == "+":
-                eq = eq - dfs(right)
-            elif op == "-":
-                eq = eq + dfs(right)
-            elif op == "/":
-                eq = eq * dfs(right)
-            else:
-                eq = eq // dfs(right)
-            u = left
-        else:
-            if op == "+":
-                eq = eq - dfs(left)
-            elif op == "-":
-                eq = dfs(left) - eq
-            elif op == "/":
-                eq = dfs(left) // eq
-            else:
-                eq = eq // dfs(left)
-            u = right
-    print(eq)
-
+    for monkey in monkeys.keys():
+        dfs(monkey)
+    print(monkeys["root"])
 
             
 
