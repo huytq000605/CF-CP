@@ -55,9 +55,8 @@ def main():
         return (r, c)
 
 
-    time = 0
-    while True:
-        time += 1
+    time = 10
+    while time:
         next_elves = dict()
         freq = defaultdict(int)
         for r, c in elves:
@@ -72,16 +71,20 @@ def main():
             nr, nc = next_elves[(r, c)]
             if freq[(nr, nc)] > 1:
                 next_elves[(r, c)] = (r, c)
-        new_elves = set(next_elves.values())
-        if elves == new_elves:
-            print(time)
-            return
-        elves = new_elves
+        elves = set(next_elves.values())
+        print("end of round", 10 - time + 1, sorted(elves))
 
+        time -= 1
         di += 1
         di %= 4
 
     lr, lc, hr, hc = math.inf, math.inf, -math.inf, -math.inf
+    for r, c in elves:
+        lr = min(lr, r)
+        lc = min(lc, c)
+        hr = max(hr, r)
+        hc = max(hc, c)
+    print((hr - lr+1) * (hc - lc+1) - len(elves))
 
 
 
