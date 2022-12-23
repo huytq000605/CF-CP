@@ -1,106 +1,66 @@
-import pathlib
 import sys
+lines = [x.rstrip() for x in sys.stdin.readlines()]
+board = lines[:-2]
+ops = lines[-1]
 
+wrap = {}
+def edge(face1, dir1, exit, face2, dir2, enter, rot):
+  for k in range(50):
+    p1 = (face1[0] + dir1[0] * k, face1[1] + dir1[1] * k)
+    p2 = (face2[0] + dir2[0] * k, face2[1] + dir2[1] * k)
+    wrap[(p1[0] + exit[0], p1[1] + exit[1])] = (p2, rot)
+    wrap[(p2[0] + enter[0], p2[1] + enter[1])] = (p1, -rot)
 
-def sign(x):
-    return -1 if x < 0 else 1
+# Front:
+edge((0, 50), (1, 0), (0, -1), (149, 0), (-1, 0), (0, -1), 2) # Left
+edge((0, 50), (0, 1), (-1, 0), (150, 0), (1, 0), (0, -1), 1) # Top
 
+# Right:
+edge((49, 100), (0, 1), (1, 0), (50, 99), (1, 0), (0, 1), 1) # Under
+edge((0, 100), (0, 1), (-1, 0), (199, 0), (0, 1), (1, 0), 0) # Top
+edge((0, 149), (1, 0), (0, 1), (149, 99), (-1, 0), (0, 1), 2) # Back
 
-def parse(puzzle_input):
-    """Parse input."""
-    paths = puzzle_input
-    lines = [[cord.split(",") for cord in _path.split(" -> ")] for _path in paths]
+# Under:
+edge((50, 50), (1, 0), (0, -1), (100, 0), (0, 1), (-1, 0), 3) # Left
 
-    lowest = [500, 0]
-    coordinates = []
-    for line in lines:
-        for idx, point in enumerate(line):
-            x1, y1 = int(point[0]), int(point[1])
-            coordinates.append((x1, y1))
-            lowest = [x1, y1] if y1 > lowest[1] else lowest
+# Back:
+edge((149, 50), (0, 1), (1, 0), (150, 49), (1, 0), (0, 1), 1) # Top
 
-            if idx < len(line) - 1:
-                end = line[idx + 1]
-                x2, y2 = int(end[0]), int(end[1])
-                dx, dy = (x2 - x1), (y2 - y1)
-                if abs(dx) > 0:
-                    for x in range(1, abs(dx)):
-                        x3 = x1 + (sign(dx) * x)
-                        coordinates.append((x3, y1))
-                        lowest = [x3, y1] if y1 > lowest[1] else lowest
-                elif abs(dy) > 0:
-                    for y in range(1, abs(dy)):
-                        y3 = y1 + (sign(dy) * y)
-                        coordinates.append((x1, y3))
-                        lowest = [x1, y3] if y3 > lowest[1] else lowest
+dir = [ (0, 1), (1, 0), (0, -1), (-1, 0) ]
+p,facing = (0, board[0].index('.')),0
+i = step = 0
+trace = [ list(r) for r in board ]
+while i < len(ops):
+  step += 1
+  if ops[i] == 'L':
+    facing = (facing-1) % 4
+    i += 1
+  elif ops[i] == 'R':
+    facing = (facing+1) % 4
+    i += 1
+  else:
+    steps = ''
+    while i < len(ops) and ops[i].isnumeric():
+      steps += ops[i]
+      i += 1
+    for k in range(int(steps)):
+      r1,c1 = p[0] + dir[facing][0], p[1] + dir[facing][1]
+      f0 = facing
 
-    return coordinates, lowest
+      if (r1,c1) in wrap:
+        (r1,c1),ff = wrap[(r1,c1)]
+        facing = (facing + ff) % 4
 
-
-def part1(data):
-    """Solve part 1."""
-    cordinates, lowest = data
-    simulation = set(cordinates)
-    simulating = True
-
-    while simulating:
-        sand = (500, 0)
-        while True:
-            x, y = sand
-            if y >= lowest[1]:
-                simulating = False
-                break
-            elif (x, y + 1) not in simulation:
-                sand = (x, y + 1)
-            elif (x - 1, y + 1) not in simulation:
-                sand = (x - 1, y + 1)
-            elif (x + 1, y + 1) not in simulation:
-                sand = (x + 1, y + 1)
-            else:
-                simulation.add(sand)
-                break
-
-    return len(simulation) - len(set(cordinates))
-
-
-def part2(data):
-    """Solve part 2."""
-    cordinates, lowest = data
-    simulation = set(cordinates)
-    simulating = True
-    lowest[1] += 2
-
-    while simulating:
-        sand = (500, 0)
-        while True:
-            x, y = sand
-
-            if (x, y + 1) not in simulation and y + 1 < lowest[1]:
-                sand = (x, y + 1)
-            elif (x - 1, y + 1) not in simulation and y + 1 < lowest[1]:
-                sand = (x - 1, y + 1)
-            elif (x + 1, y + 1) not in simulation and y + 1 < lowest[1]:
-                sand = (x + 1, y + 1)
-            else:
-                simulation.add(sand)
-                if sand == (500, 0):
-                    simulating = False
-                break
-
-    return len(simulation) - len(set(cordinates))
-
-
-def solve(puzzle_input):
-    """Solve the puzzle for the given input."""
-    data = parse(puzzle_input)
-    solution1 = part1(data)
-    solution2 = part2(data)
-
-    return solution1, solution2
-
-
-if __name__ == "__main__":
-    lines = sys.stdin.read().splitlines()
-    puzzle_input = lines
-    solutions = solve(puzzle_input)
-    print("\n".join(str(solution) for solution in solutions))
+      if board[r1][c1] == '#':
+        facing = f0
+        break
+      trace[p[0]][p[1]] = '>v<^'[f0]
+      p = (r1,c1)
+    print(p)
+  if len(sys.argv) > 1 and step == int(sys.argv[1]): break
+trace[p[0]][p[1]] = 'o'
+for b in trace:
+  print(''.join(b))
+end = (p[0]+1, p[1]+1)
+print(f'end pos = {end}')
+print(f'answer = {end[0]*1000 + end[1]*4 + facing}')
