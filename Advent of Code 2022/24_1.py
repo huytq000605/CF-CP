@@ -50,38 +50,41 @@ def main():
                     if nc == 0:
                         nc = n-2
                     new_grid[nr][nc].append(d)
-                    new_grid[nr][nc].sort()
         grid = new_grid
-    count = 0
-
-    def get_state(r, c):
-        return (r, c, str(grid))
 
 
-    seen = set()
-    while q:
-        r, c, s = q.popleft()
-        print(r, c, s)
-        count += 1
-        if s == cur:
-            cur += 1
-            move()
-        for dr, dc in [*ds.values(), (0, 0)]:
-            nr, nc = r + dr, c + dc
-            if (nr, nc) == goal:
-                print(s+1)
-                return s + 1
-            if nr == m-1 or nc == n-1 or nr <= 0 or nc <= 0 or len(grid[nr][nc]) > 0:
-                continue
-            if get_state(nr, nc) in seen:
-                print("CACHED")
-                continue
-            seen.add(get_state(nr, nc))
-            q.append((nr, nc, s + 1))
-    print("CANT")
-    return -1
+    result = 0
+
+    def bfs(start, end):
+        nonlocal result, grid
+        cur = 0
+        seen = set()
+        q = deque([(start[0], start[1], 0)])
+        while q:
+            r, c, s = q.popleft()
+            if s == cur:
+                seen = set()
+                cur += 1
+                move()
+            for dr, dc in ds.values():
+                nr, nc = r + dr, c + dc
+                if (nr, nc) == end:
+                    print(s+1)
+                    result += s + 1
+                    return
+                if nr >= m-1 or nc >= n-1 or nr <= 0 or nc <= 0 or len(grid[nr][nc]) > 0:
+                    continue
+                if (nr, nc) in seen:
+                    continue
+                seen.add((nr, nc))
+                q.append((nr, nc, s + 1))
+            if len(grid[r][c]) == 0 and (r, c) not in seen:
+                q.append((r, c, s + 1))
+    bfs((0, 1), (m-1, n-2))
 
 
+    print("FINISH")
+    print(result)
     
 
 
@@ -89,4 +92,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
