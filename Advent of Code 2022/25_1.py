@@ -47,10 +47,6 @@ def main():
 
 
 
-
-
-
-
 # Converting from SNAFU to base-10 is easy: 
 # a number is a string of "digits" (v[n], ..., v[2], v[1], v[0]), the value of it is v[n] * 5n + ... + v[2] * 52 + v[1] * 5 + v[0], so calculate that while iterating over the string from the end.
 # Converting from base-10 to SNAFU is a little bit trickier. 
