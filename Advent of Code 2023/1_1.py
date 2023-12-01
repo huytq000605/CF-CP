@@ -22,26 +22,14 @@ class BreakOutException(Exception):
 def main():
     lines = sys.stdin.read().splitlines()
     s = 0
-    digits = ["one", "two", "three", "four", "five", "six", "seven" ,"eight", "nine"]
     for line in lines:
         first = None
         last = None
-        cur = ""
-        i = 0
-        while i < len(line):
-            if line[i].isdigit():
-                if first is None:
-                    first = int(line[i])
-                last = int(line[i])
-            else:
-                for j, digit in enumerate(digits):
-                    if line[i:i+len(digit)] == digit:
-                        i += len(digit) - 2
-                        if first is None:
-                            first = j + 1
-                        last = j + 1
-                        break
-            i += 1
+        for c in line:
+            if not c.isdigit(): continue
+            if first is None:
+                first = int(c)
+            last = int(c)
 
         s += first * 10 + last
 
