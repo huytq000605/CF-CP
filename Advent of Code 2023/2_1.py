@@ -21,11 +21,12 @@ class BreakOutException(Exception):
 
 def main():
     lines = sys.stdin.read().splitlines()
+    max_color = {"blue": 14, "green": 13, "red": 12}
     result = 0
     for i, line in enumerate(lines):
+        valid = True
         game_id = i+1
         sets = line.split(":")[1].strip()
-        max_color_game = Counter()
         for set in sets.split(";"):
             counter = Counter()
             set = set.strip()
@@ -33,12 +34,11 @@ def main():
                 cube = cube.strip()
                 num, color = cube.split(" ")
                 counter[color] += int(num)
-                max_color_game[color] = max(max_color_game[color], counter[color])
-
-        mul = 1
-        for color in ["blue", "green", "red"]:
-            mul *= max_color_game[color]
-        result += mul
+                if counter[color] > max_color[color]:
+                    valid = False
+                    break
+        if valid:
+            result += game_id
     print(result)
 
 
