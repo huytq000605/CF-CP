@@ -23,27 +23,26 @@ def main():
     lines = sys.stdin.read().splitlines()
     ds = [(0,1), (1,0), (0,-1), (-1,0), (1, 1), (-1, -1), (-1, 1), (1, -1)]
     matrix = []
+    nums = []
+    result = 0
     for line in lines:
         matrix.append(line)
 
-    m, n = len(matrix), len(matrix[0])
-    symbols = defaultdict(list)
-
     def check_num(r, start_c, end_c):
-        nonlocal symbols
-        adj_symbols = set()
+        nonlocal result
+        adj_star = False
         for c in range(start_c, end_c):
             for dr, dc in ds:
                 ar, ac = r + dr, c + dc
                 if ar < 0 or ar >= m or ac < 0 or ac >= n:
                     continue
                 if not matrix[ar][ac].isdigit() and matrix[ar][ac] != ".":
-                    adj_symbols.add((ar, ac))
+                    adj_star = True
+        if adj_star:
+            result += num
 
-        for symbol in adj_symbols:
-            symbols[symbol].append(num)
 
-
+    m, n = len(matrix), len(matrix[0])
     for r in range(m):
         start_c = 0
         num = 0
@@ -63,13 +62,7 @@ def main():
             if c == n-1:
                 if is_num: check_num(r, start_c, c)
 
-    result = 0
-    for symbol, nums in symbols.items():
-        if len(nums) == 2:
-            result += nums[0] * nums[1]
-
     print(result)
-
     return result
 
         
