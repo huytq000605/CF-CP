@@ -22,31 +22,22 @@ class BreakOutException(Exception):
 def main():
     lines = sys.stdin.read().splitlines()
     result = 0
-    instances = 1
-    minus = defaultdict(int)
-    for i, line in enumerate(lines):
+    for line in lines:
         card = line.split(": ")[1]
         winner_strs, nums = card.split(" | ")
         winners = set()
-
-        instances += minus[i]
-        result += instances
-
         for s in winner_strs.split(" "):
             s = s.strip()
             if s == "": continue
             winners.add(int(s))
-
-        winning = 0
+        points = 0
         for num in nums.split(" "):
             num = num.strip()
             if num == "": continue
             num = int(num)
             if num in winners:
-                winning += 1
-
-        minus[i + winning + 1] -= instances
-        instances += instances
+                points = max(points + 1, points * 2)
+        result += points
     print(result)
     return result
 
