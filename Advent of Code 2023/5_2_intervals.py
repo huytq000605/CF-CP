@@ -30,42 +30,26 @@ def main():
     line_idx = 1
 
     def process_seeds(seeds, intervals):
-        line = []
-        # sort line in order
-        # start of src needs to start before seeds
-        # end of src needs to end after seeds
+        new_seeds = []
+        intervals.sort()
         for src_start, src_end, diff in intervals:
-            line.append((src_start, 1, diff))
-            line.append((src_end, 4, diff))
-        for start, end in seeds:
-            line.append((start, 2, 0))
-            line.append((end, 3, 0))
+            next_seeds = []
+            while seeds:
+                start, end = seeds.pop()
+                before = (start, min(src_start - 1, end))
+                inner = (max(src_start, start), min(src_end, end))
+                after = (max(start, src_end + 1), end)
 
-        line.sort()
-        take = False
-        change = 0
-        cur = 0
-        result = []
-        for x, t, v in line:
-            if t == 1:
-                if take and x-1 >= cur: result.append((cur + change, x + change -1))
-                cur = x
-                change = v
-            elif t == 4:
-                if take: result.append((cur + change, x + change))
-                cur = x+1
-                change = 0
-            elif t == 2:
-                cur = x
-                take = True
-            elif t == 3:
-                # always take == True
-                if take: result.append((cur + change, x + change))
-                cur = x + 1
-                take = False
+                if before[0] <= before[1]:
+                    next_seeds.append(before)
 
-        result.sort()
-        return result
+                if inner[0] <= inner[1]:
+                    new_seeds.append(inner)
+
+                if after[0] <= after[1]:
+                    next_seeds.append(after)
+            seeds = next_seeds
+        return new_seeds + seeds
 
     intervals = []
     while line_idx < len(lines):
