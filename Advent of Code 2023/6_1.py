@@ -21,8 +21,8 @@ class BreakOutException(Exception):
 
 
 def main():
-    times = [40817772]
-    distances = [219101213651080]
+    times = [40, 81, 77, 72]
+    distances = [219, 1012, 1365, 1080]
 
     ways = 1
     for i in range(len(times)):
