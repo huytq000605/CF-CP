@@ -22,7 +22,7 @@ class BreakOutException(Exception):
 
 def main():
     lines = sys.stdin.read().splitlines()
-    values = ["A", "K", "Q", "T", "9", "8", "7", "6", "5", "4", "3", "2", "J"]
+    values = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"]
     ranks = {
         "high": [1],
         "one": [2],
@@ -34,26 +34,14 @@ def main():
     }
     for line in lines:
         cards, bet = line.split(" ")
-
-        counter = Counter()
-        count_j = 0
-        for card in cards:
-            if card == "J":
-                count_j += 1
-                continue
-            counter[card] += 1
-
-        
-        mx = 0
-        if counter:
-            mx = max(counter.values())
+        counter = Counter(cards)
+        mx = max(counter.values())
         keys = [cards[i] for i in range(5)]
         keys = [-values.index(e) for e in keys]
         keys.append(bet)
         keys = tuple(keys)
-        mx = min(5, mx + count_j)
         if mx == 5:
-            ranks["five"].append((keys, bet))
+            ranks["five"].append((keys[0], bet))
         elif mx == 4:
             ranks["four"].append(keys)
         elif mx == 3 and len(counter) == 2:
@@ -71,7 +59,6 @@ def main():
     result = 0
     for key in ranks.keys():
         ranks[key] = sorted(ranks[key][1:])
-
     for key in reversed(["five", "four", "full", "three", "two", "one", "high"]):
         for (*_, bet) in ranks[key]:
             result += jth * int(bet)
@@ -79,7 +66,18 @@ def main():
 
     print(result)
     return result
-       
+
+
+
+
+                
+
+
+
+
+
+
+        
         
 
 if __name__ == "__main__":
