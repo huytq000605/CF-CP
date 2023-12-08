@@ -24,38 +24,27 @@ def main():
     lines = sys.stdin.read().splitlines()
     instructions = lines[0]
 
-    starts = []
     d = defaultdict()
     for line in lines[2:]:
         u, vs = line.split(" = ")
         v1, v2 = vs[1:-1].split(", ")
         d[u] = [v1, v2]
-        if u[-1] == 'A':
-            starts.append(u)
 
-    results = []
-    for start in starts:
-        i = 0
-        s = 0
-        stack = [start]
-        while stack:
-            u = stack.pop()
-            if u[-1] == 'Z':
-                results.append(s)
-                break
-            v1, v2 = d[u]
-            if instructions[i] == "L":
-                stack.append(v1)
-            else:
-                stack.append(v2)
-            i += 1
-            i %= len(instructions)
-            s += 1
-    lcm = results[0]
-    mul = 1
-    for num in results:
-        lcm = math.lcm(lcm, num)
-    print(lcm)
+    i = 0
+    dq = deque([('AAA', 0)])
+    while True:
+        u, s = dq.popleft()
+        if u == 'ZZZ':
+            print(s)
+            return s
+        v1, v2 = d[u]
+        if instructions[i] == "L":
+            dq.append((v1, s+1))
+        else:
+            dq.append((v2, s+1))
+        i += 1
+        i %= len(instructions)
+    print("???")
     return -1
         
 
