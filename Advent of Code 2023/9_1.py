@@ -29,10 +29,10 @@ def main():
         while any(num != 0 for num in nums):
             nums = [nums[i+1] - nums[i] for i in range(len(nums)-1)]
             rounds.append([*nums])
-        first = 0
+        last = 0
         for i in range(len(rounds) - 2, -1, -1):
-            first = rounds[i][0] - first
-        result += first
+            last += rounds[i][-1]
+        result += last
     
     print(result)
 
