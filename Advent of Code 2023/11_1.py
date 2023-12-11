@@ -66,9 +66,9 @@ def main():
                     continue
                 dd = 1
                 if nr in big_rows:
-                    dd += 1000000 - 1
+                    dd += 2-1
                 if nc in big_cols:
-                    dd += 1000000 - 1
+                    dd += 2-1
                 if d + dd < distances[(nr, nc)]:
                     distances[(nr, nc)] = d + dd
                     heappush(pq, (d+dd, nr, nc))
