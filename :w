@@ -35,10 +35,7 @@ def main():
                 if j < len(groups):
                     return 0
                 return 1
-            
-            if j < len(groups) and cur > groups[j]:
-                return 0
-            
+
             if line[i] == ".":
                 if cur:
                     if j < len(groups) and groups[j] == cur:
@@ -63,22 +60,17 @@ def main():
     result = 0
     for line in lines:
         line, groups = line.split(" ")
-
-        new_line, new_groups = "", ""
-        for _ in range(5):
-            new_line += "?"
-            new_line += line
-
-            new_groups += ","
-            new_groups += groups
-
-        line, groups = new_line[1:], new_groups[1:]
+        line *= 5
         groups = list(map(int, groups.split(",")))
-        print(line, groups)
+        groups = [groups[i%len(groups)] for i in range(len(groups) * 5)]
 
         result += calculate(line, groups)
     print(result)
     return result
+
+
+            
+
 
 
 if __name__ == "__main__":
