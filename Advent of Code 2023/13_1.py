@@ -34,26 +34,28 @@ def main():
         # mirror is horizontal
         for mirror in range(m-1):
             r1, r2 = mirror, mirror + 1
-            diff = 0
-            while r1 >= 0 and r2 < m and diff <= 1:
+            valid = True
+            while r1 >= 0 and r2 < m and valid:
                 for c in range(n):
                     if matrix[r1][c] != matrix[r2][c]:
-                        diff += 1
+                        valid = False
+                        break
                 r1 -= 1
                 r2 += 1
-            if diff == 1:
+            if valid:
                 return ((mirror+1) * 100, "horizontal")
         
         for mirror in range(n-1):
             c1, c2 = mirror, mirror + 1
-            diff = 0
-            while c1 >= 0 and c2 < n and diff <= 1:
+            valid = True
+            while c1 >= 0 and c2 < n and valid:
                 for r in range(m):
                     if matrix[r][c1] != matrix[r][c2]:
-                        diff += 1
+                        valid = False
+                        break
                 c1 -= 1
                 c2 += 1
-            if diff == 1:
+            if valid:
                 return (mirror+1, "vertical")
 
         return None
