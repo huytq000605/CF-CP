@@ -33,34 +33,10 @@ def main():
             v %= 256
         return v
     
-    boxes = [[] for _ in range(256)]
-    for s in strs:
-        if "-" in s:
-            lens = s[:-1]
-            box = hash(lens)
-            for i, l in enumerate(boxes[box]):
-                if l[0] == lens:
-                    boxes[box].pop(i)
-                    break
-        else:
-            lens, v = s.split("=")
-            box = hash(lens)
-            done = False
-            for i, l in enumerate(boxes[box]):
-                if l[0] == lens:
-                    boxes[box][i] = (lens, v)
-                    done = True
-                    break
-            if not done:
-                boxes[box].append((lens, v))
-
     result = 0
-    for box in range(256):
-        for i, (_, focal) in enumerate(boxes[box]):
-            result += (box+1) * (i+1) * int(focal)
-
+    for s in strs:
+        result += hash(s)
     print(result)
-
     
 
 
