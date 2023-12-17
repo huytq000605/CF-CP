@@ -36,15 +36,12 @@ def main():
     while pq:
         s, r, c, pdr, pdc, sd = heappop(pq)
         if (r, c) == (m-1, n-1):
-            print(s)
+            print(s, pdr, pdc, sd)
             break
 
         for dr, dc in ds:
-            if sd < 4 and (dr, dc) != (pdr, pdc):
+            if sd == 3 and (dr, dc) == (pdr, pdc):
                 continue
-            if sd == 10 and (dr, dc) == (pdr, pdc):
-                continue
-
             if (dr, dc) != (pdr, pdc) and pdr*dr + pdc*dc != 0:
                 continue
             nr, nc = r + dr, c + dc
