@@ -52,12 +52,12 @@ def main():
             if v not in graph: continue
             if graph[v][0] == "&":
                 graph[v][1][u] = False
-
         
 
 
     def press_button():
-        nonlocal counter, time
+        nonlocal low, high
+        low += 1
         dq = [("broadcaster", False)]
         dq = deque(dq)
         while dq:
@@ -73,31 +73,34 @@ def main():
                 if all(graph[u][1].values()):
                     pulse = False
                 else:
-                    if not counter[u] and u in ["rk", "cd", "zf", "qx"]:
-                        counter[u] = time
                     pulse = True
 
             # Debug
             # print(u, pulse, graph[u][2:])
 
+
+            if pulse:
+                high += len(graph[u]) - 2
+            else:
+                low += len(graph[u]) - 2
+
             for v in graph[u][2:]:
-                if v == "rx":
-                    continue
-                if graph[v][0] == "&":
+                if v not in graph: continue
+                if graph[v][0] == "broadcaster":
+                    dq.append((v, pulse))
+                elif graph[v][0] == "%" and not pulse:
+                    dq.append((v, False))
+                elif graph[v][0] == "&":
                     graph[v][1][u] = pulse
-                dq.append((v, pulse))
+                    dq.append((v, pulse))
 
-    # gh leads to rx
-    # rk, cd, zf, qx lead to gh
-    counter = Counter()
-    time = 0
-    while len(counter) < 4:
-        time += 1
+    low, high = 0, 0
+    for _ in range(1000):
         press_button()
+        # print()
+    print(low*high, low, high)
 
-    print(counter)
-    print(math.lcm(*counter.values()))
-    
+
 
 
 if __name__ == "__main__":
