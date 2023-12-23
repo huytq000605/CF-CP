@@ -58,38 +58,12 @@ def main():
             supported[(x1, y1)] = b
 
     
-    supporting = defaultdict(set)
+    result = set()
     for b, sps in supporters.items():
-        for sp in sps:
-            if sp == -1: continue
-            supporting[sp].add(b)
+        if len(sps) == 1 and list(sps)[0] != -1:
+            result.add(list(sps)[0])
 
-    result = 0
-    for b in range(n):
-        dq = deque(supporting[b])
-        breaks = set([b])
-        while dq:
-            b = dq.popleft()
-
-            broken = True
-            for spb in supporters[b]:
-                if spb == -1: continue
-                if spb not in breaks:
-                    broken = False
-                    break
-
-            if not broken: continue
-            breaks.add(b)
-
-            for sp in supporting[b]:
-                dq.append(sp)
-        result += len(breaks) - 1
-
-    print(result)
-
-
-
-
+    print(result, n - len(result))
 
             
 
