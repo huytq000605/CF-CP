@@ -10,6 +10,7 @@ from heapq import heappush, heappop
 import json
 import re
 from copy import copy, deepcopy
+# pip3 install z3-solver
 import z3
 def get_int(): return int(input())
 def get_ints(): return map(int, sys.stdin.readline().strip().split())
