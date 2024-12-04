@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -13,12 +14,24 @@ int solve(vector<string>& matrix) {
 	string XMAS = "XMAS";
 	vector<pair<int, int>> ds{{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
 
-	for(int r{1}; r < m-1; ++r) {
-		for(int c{1}; c < n-1; ++c) {
-			if(matrix[r][c] == 'A') {
-				bool dia1 = (matrix[r-1][c-1] == 'M' && matrix[r+1][c+1] == 'S') || (matrix[r-1][c-1] == 'S' && matrix[r+1][c+1] == 'M');
-				bool dia2 = (matrix[r+1][c-1] == 'M' && matrix[r-1][c+1] == 'S') || (matrix[r+1][c-1] == 'S' && matrix[r-1][c+1] == 'M');
-				if(dia1 && dia2) ++result;
+	for(int r{}; r < m; ++r) {
+		for(int c{}; c < n; ++c) {
+			if(matrix[r][c] == 'X') {
+				for (auto &[dr, dc] : ds)
+				{
+					int rr{r}, cc{c}, ii{0};
+					while (ii < XMAS.size())
+					{
+						if (rr < 0 || rr >= m || cc < 0 || cc >= n)
+							break;
+						if (matrix[rr][cc] != XMAS[ii])
+							break;
+						++ii;
+						rr += dr;
+						cc += dc;
+					}
+					result += ii == XMAS.size();
+				}
 			}
 		}
 	}
