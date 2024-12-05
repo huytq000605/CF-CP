@@ -29,10 +29,6 @@ int solve(unordered_map<int, vector<int>> &graph, vector<vector<int>> &rules) {
 	for(auto &rule: rules) {
 		if(!valid(rule)) {
 			result += *(rule.begin() + rule.size() / 2);
-			for(auto num: rule) {
-				cout << num << " ";
-			}
-			cout << endl;
 		}
 	}
 	return result;

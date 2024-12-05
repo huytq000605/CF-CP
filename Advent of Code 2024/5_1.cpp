@@ -12,28 +12,20 @@ int solve(unordered_map<int, vector<int>> &graph, vector<vector<int>> &rules) {
 	auto valid = [&](vector<int> &rule) {
 		int n = rule.size();
 		int prev{-1};
-		bool valid{true};
 		for(int i{}; i < n; ++i) {
 			for(int j{i+1}; j < n; ++j) {
 				int u = rule[i], v = rule[j];
 				if(find(graph[v].begin(), graph[v].end(), u) != graph[v].end()) {
-					swap(rule[i], rule[j]);
-					valid = false;
+					return false;
 				}
 			}
 		}
-		return valid;
+		return true;
 	};
 
 	int result{};
 	for(auto &rule: rules) {
-		if(!valid(rule)) {
-			result += *(rule.begin() + rule.size() / 2);
-			for(auto num: rule) {
-				cout << num << " ";
-			}
-			cout << endl;
-		}
+		if(valid(rule)) result += *(rule.begin() + rule.size() / 2);
 	}
 	return result;
 }
