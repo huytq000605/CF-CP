@@ -7,7 +7,6 @@
 #include <regex>
 #include <array>
 #include <set>
-#include <math.h>
 
 using namespace std;
 
@@ -17,12 +16,7 @@ long long solve(vector<vector<long long>> &equations) {
 		long long target = eq[0];
 		auto dfs = [&](long long cur, int i, auto dfs) -> bool {
 			if(i >= eq.size()) return cur == target;
-			long long tens{}, num = eq[i];
-			while(num) {
-				num /= 10;
-				++tens;
-			}
-			return dfs(cur * eq[i], i+1, dfs) || dfs(cur + eq[i], i+1, dfs) || dfs(cur * pow(10ll, tens) + eq[i], i+1, dfs);
+			return dfs(cur * eq[i], i+1, dfs) || dfs(cur + eq[i], i+1, dfs);
 		};
 		return dfs(eq[1], 2, dfs);
 	};
