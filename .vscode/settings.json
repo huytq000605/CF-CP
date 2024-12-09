@@ -9,6 +9,7 @@
 		"array": "cpp",
 		"__tuple": "cpp",
 		"__config": "cpp",
-		"istream": "cpp"
+		"istream": "cpp",
+		"tuple": "cpp"
 	}
 }
