@@ -10,6 +10,7 @@
 		"__tuple": "cpp",
 		"__config": "cpp",
 		"istream": "cpp",
-		"tuple": "cpp"
+		"tuple": "cpp",
+		"*.tcc": "cpp"
 	}
 }

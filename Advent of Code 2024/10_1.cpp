@@ -23,20 +23,25 @@ long long solve(vector<string>& grid) {
 
 	long long result{};
 	for(auto [r, c]: starts) {
+		set<pair<int, int>> top;
+		set<pair<int, int>> seen;
 		deque<pair<int, int>> dq{{ {r, c} }};
 		while(!dq.empty()) {
 			auto [r, c] = dq.front();
 			if(grid[r][c] == '9') {
-				++result;
+				top.emplace(r, c);
 			}
 			dq.pop_front();
 			for(auto [dr, dc]: ds) {
 				int nr = r + dr, nc = c + dc;
 				if(nr < 0 || nr >= m || nc < 0 || nc >= n) continue;
 				if(grid[r][c]+1 != grid[nr][nc]) continue;
+				if(seen.find({nr, nc}) != seen.end()) continue;
+				seen.emplace(nr, nc);
 				dq.emplace_back(nr, nc);
 			}
 		}
+		result += top.size();
 	}
 
 	return result;
