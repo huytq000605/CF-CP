@@ -34,8 +34,6 @@ long long solve(vector<long long> &stones) {
 	}
 	long long result{};
 	for(auto [_, count]: m) result += count;
-	// cout << endl;
-	// return accumulate(stones.begin(), stones.end(), 0ll);
 	return result;
 }
 

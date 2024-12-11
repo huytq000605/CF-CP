@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <iomanip>
 #include <vector>
@@ -14,7 +15,7 @@ using namespace std;
 static constexpr array<pair<int, int>, 4> ds{{ {0,1}, {1,0}, {-1,0}, {0,-1} }};
 
 long long solve(vector<long long> &stones) {
-	int t{75};
+	int t{25};
 	map<long long, long long> m;
 	for(long long &stone: stones) ++m[stone];
 	while(t--) {
@@ -34,8 +35,6 @@ long long solve(vector<long long> &stones) {
 	}
 	long long result{};
 	for(auto [_, count]: m) result += count;
-	// cout << endl;
-	// return accumulate(stones.begin(), stones.end(), 0ll);
 	return result;
 }
 
