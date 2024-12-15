@@ -17,23 +17,7 @@ using namespace std;
 static constexpr array<pair<int, int>, 4> ds{{ {0,1}, {1,0}, {-1,0}, {0,-1} }};
 using XY = pair<long long, long long>;
 
-vector<string> scale_grid(vector<string>& grid) {
-  vector<string> new_grid;
-  for(auto &r: grid) {
-    string new_r;
-    for(auto c: r) {
-      if(c == '#') new_r += "##";
-      else if(c == 'O') new_r += "[]";
-      else if(c == '.') new_r += "..";
-      else if(c == '@') new_r += "@.";
-    }
-    new_grid.emplace_back(new_r);
-  }
-  return new_grid;
-}
-
 long long solve(vector<string>& grid, vector<pair<int, int>> &commands) {
-  grid = scale_grid(grid);
   int m = grid.size(), n = grid[0].size();
   pair<int, int> robot{-1, -1};
   for(int r{}; r < m && robot == make_pair(-1, -1); ++r) {
@@ -44,57 +28,45 @@ long long solve(vector<string>& grid, vector<pair<int, int>> &commands) {
     }
   }
 
-  function<bool(int, int, int, int)> can_move = [&](int r, int c, int dr, int dc) -> bool {
-    int nr = r + dr, nc = c + dc;
-    if(grid[nr][nc] == '#') return false;
-    else if(grid[nr][nc] == '.') return true;
-    else if(dc == 0 && grid[nr][nc] == '[') {
-      return can_move(nr, nc, dr, dc) && can_move(nr, nc+1, dr, dc);
-    } else if(dc == 0 && grid[nr][nc] == ']') {
-      return can_move(nr, nc, dr, dc) && can_move(nr, nc-1, dr, dc);
-    } else {
-      return can_move(nr, nc, dr, dc);
+  auto move = [&](int r, int c, int dr, int dc) -> bool {
+    int rr = r, cc = c;
+    while(r >= 0 && r < m && c >= 0 && c < n) {
+      if(grid[r][c] == '#') return false;
+      if(grid[r][c] == '.') {
+        while(r != rr || c != cc) {
+          swap(grid[r][c], grid[r - dr][c - dc]);
+          r -= dr;
+          c -= dc;
+        }
+        return true;
+      }
+      r += dr;
+      c += dc;
     }
-  };
-
-  function<void(int, int, int, int)> move = [&](int r, int c, int dr, int dc) {
-    int nr = r + dr, nc = c + dc;
-    if(dc == 0 && grid[nr][nc] == '[') {
-      move(nr, nc, dr, dc);
-      move(nr, nc+1, dr, dc);
-    } else if(dc == 0 && grid[nr][nc] == ']') {
-      move(nr, nc, dr, dc);
-      move(nr, nc-1, dr, dc);
-    } else if(grid[nr][nc] == '.') {
-      
-    } else {
-      move(nr, nc, dr, dc);
-    }
-    swap(grid[r][c], grid[nr][nc]);
+    return false;
   };
 
   int t{};
   auto [r, c] = robot;
   for(auto [dr, dc]: commands) {
     int nr = r + dr, nc = c + dc;
-    bool ok = can_move(r, c, dr, dc);
-    if(ok) {
-      move(r, c, dr, dc);
+    bool moved = move(r, c, dr, dc);
+    if(moved) {
       r = nr, c = nc;
     }
   }
 
-  for(auto &r: grid) {
-   for(auto c: r) {
-     cout << c << " ";
-   }
-   cout << endl;
-  }
-  
+  // for(auto &r: grid) {
+  //   for(auto c: r) {
+  //     cout << c << " ";
+  //   }
+  //   cout << endl;
+  // }
+  //
   long long result{};
   for(int r{}; r < m; ++r) {
     for(int c{}; c < n; ++c) {
-      if(grid[r][c] == '[') {
+      if(grid[r][c] == 'O') {
         result += r * 100 + c;
       }
     }
