@@ -13,6 +13,7 @@
 		"tuple": "cpp",
 		"*.tcc": "cpp",
 		"unordered_set": "cpp",
-		"iomanip": "cpp"
+		"iomanip": "cpp",
+		"ostream": "cpp"
 	}
 }
