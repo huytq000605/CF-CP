@@ -20,20 +20,21 @@ static constexpr array<pair<int, int>, 4> ds{{ {0,1}, {1,0}, {0,-1}, {-1,0} }};
 using XY = pair<int, int>;
 
 
-long long solve(vector<XY>& bytes, int first_bytes) {
+long long solve(vector<XY>& bytes) {
   int m{71}, n{71};
+  int first_bytes{1024};
   vector<vector<int>> grid(m, vector<int>(n, 0));
   for(auto [x, y]: bytes) {
     grid[x][y] = 1;
     first_bytes--;
     if(!first_bytes) break;
   }
-  // for(auto &r: grid) {
-  //   for(auto c: r) {
-  //     cout << c;
-  //   }
-  //   cout << endl;
-  // }
+  for(auto &r: grid) {
+    for(auto c: r) {
+      cout << c;
+    }
+    cout << endl;
+  }
   priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, 
       decltype([](auto t1, auto t2) -> bool {
           return get<0>(t1) > get<0>(t2);
@@ -72,16 +73,6 @@ int main() {
     bytes.emplace_back(y, x);
   }
 
-  int lo{0}, hi = bytes.size();
-  while(lo < hi) {
-    int mid = lo + (hi - lo + 1)/2;
-    if(solve(bytes, mid) == -1) {
-      hi = mid - 1;
-    } else {
-      lo = mid;
-    }
-  }
-
-  cout << bytes[lo].second << "," << bytes[lo].first << endl;
+  cout << solve(bytes) << endl;
 }
 
