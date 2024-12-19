@@ -19,28 +19,22 @@ using namespace std;
 static constexpr array<pair<int, int>, 4> ds{{ {0,1}, {1,0}, {0,-1}, {-1,0} }};
 using XY = pair<int, int>;
 
-long long ways(unordered_set<string>& towels, string& pattern) {
-  vector<long long> dp(pattern.size() + 1, 0);
-  dp[0] = 1;
-  for(int i{}; i < pattern.size(); ++i) {
-    string s{};
-    for(int j{i}; j < pattern.size(); ++j) {
-      s += pattern[j];
-      if(towels.find(s) != towels.end()) {
-        dp[j+1] += dp[i];
-      }
+bool possible(unordered_set<string>& towels, string& pattern, int i = 0) {
+  if(i >= pattern.size()) return true;
+  for(int j{i}; j < pattern.size(); ++j) {
+    if(towels.find(pattern.substr(i, j - i + 1)) != towels.end()) {
+      if(possible(towels, pattern, j+1)) return true;
     }
   }
   
-  return dp.back();
+  return false;
 }
 
 long long solve(unordered_set<string>& towels, vector<string>& patterns) {
   long long result{};
 
   for(string &pattern: patterns) {
-    vector<long long> dp(pattern.size(), -1);
-    result += ways(towels, pattern);
+    if(possible(towels, pattern)) ++result;
   }
   
   return result;
