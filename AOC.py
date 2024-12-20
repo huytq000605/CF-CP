@@ -10,8 +10,6 @@ from heapq import heappush, heappop
 import json
 import re
 from copy import copy, deepcopy
-import z3
-def get_int(): return int(input())
 def get_ints(): return map(int, sys.stdin.readline().strip().split())
 def get_list(): return list(map(int, sys.stdin.readline().strip().split()))
 def get_string(): return sys.stdin.readline().strip()
@@ -41,27 +39,32 @@ class UF:
 
 def main():
     lines = sys.stdin.read().splitlines()
+    from itertools import combinations
+    print(lines)
+    grid = {i+j*1j: c for i,r in enumerate(lines)
+                    for j,c in enumerate(r) if c != '#'}
 
-    import networkx
-    graph = networkx.Graph()
-    vertices = set()
-    for line in lines:
-        u, vs = line.split(": ")
-        vertices.add(u)
-        for v in vs.split(" "):
-            vertices.add(v)
-            graph.add_edge(u, v, capacity = 1)
+    start, = (p for p in grid if grid[p] == 'S')
 
-    for u in vertices:
-        for v in vertices:
-            if u == v: continue
-            cut_value, (L, R) = networkx.minimum_cut(graph, u, v)
-            if cut_value == 3:
-                print(len(L) * len(R))
-                return
 
-    
+    dist = {start: 0}
+    todo = [start]
 
+    for pos in todo:
+        for new in pos-1, pos+1, pos-1j, pos+1j:
+            if new in grid and new not in dist:
+                dist[new] = dist[pos] + 1
+                todo += [new]
+
+
+    a = b = 0
+
+    for (p,i), (q,j) in combinations(dist.items(), 2):
+        d = abs((p-q).real) + abs((p-q).imag)
+        if d == 2 and j-i-d >= 100: a += 1
+        if d < 21 and j-i-d >= 100: b += 1
+
+    print(a, b)
     
 
     
