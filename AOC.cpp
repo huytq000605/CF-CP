@@ -127,6 +127,17 @@ long long solve(vector<string>& grid) {
   return static_cast<long long>(result.size());
 }
 
+long long solve(unordered_set<string>& towels, vector<string>& patterns) {
+  long long result{};
+
+  for(string &pattern: patterns) {
+    vector<long long> dp(pattern.size(), -1);
+    result += ways(towels, pattern);
+  }
+  
+  return result;
+} 
+
 
 int main() {
   string line;

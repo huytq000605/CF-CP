@@ -15,6 +15,16 @@
 		"unordered_set": "cpp",
 		"iomanip": "cpp",
 		"ostream": "cpp",
-		"queue": "cpp"
+		"queue": "cpp",
+		"atomic": "cpp",
+		"cwchar": "cpp",
+		"exception": "cpp",
+		"functional": "cpp",
+		"initializer_list": "cpp",
+		"new": "cpp",
+		"stdexcept": "cpp",
+		"streambuf": "cpp",
+		"type_traits": "cpp",
+		"utility": "cpp"
 	}
 }
