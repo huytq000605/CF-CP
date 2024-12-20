@@ -70,16 +70,13 @@ long long solve(vector<string>& grid) {
   seen[sr][sc] = true;
   int s{};
   vector<XY> cheats;
-  vector<vector<int>> memo(m, vector<int>(n, 0));
   function<void(int, int, int)> dfs = [&](int r, int c, int cheat) {
     if(grid[r][c] == 'E') {
-      cout << cheats.size() << endl;
       result.insert({cheats[0], cheats[1]});
       return;
     }
-    if(s > best_time - 76) return;
-    if(cheat == 21) memo[r][c] = 1;
-    
+    if(s > best_time - 100) return;
+
     for(auto [dr, dc]: ds) {
       int nr = r + dr;
       int nc = c + dc;
@@ -87,28 +84,22 @@ long long solve(vector<string>& grid) {
       if(seen[nr][nc]) continue;
       seen[nr][nc] = true;
       ++s;
-      if(cheat == 21) {
+      if(cheat == -1) {
         if(grid[nr][nc] == '#') {
           cheats.emplace_back(nr, nc);
-          dfs(nr, nc, 20);
+          dfs(nr, nc, 1);
           cheats.pop_back();
-        }
-        dfs(nr, nc, cheat);
-      } else {
-        if(cheat) {
-          if(cheat == 1) cheats.emplace_back(nr, nc);
-          dfs(nr, nc, cheat - 1);
-          if(cheat == 1) cheats.pop_back();
-
-        } else {
-          if(grid[nr][nc] != '#') dfs(nr, nc, 0);
-        }
+        } else dfs(nr, nc, cheat);
+      } else if(grid[nr][nc] != '#') {
+        if(cheat) cheats.emplace_back(nr, nc);
+        dfs(nr, nc, (cheat > 0) ? cheat - 1: cheat);
+        if(cheat) cheats.pop_back();
       }
       seen[nr][nc] = false;
       --s;
     }
   };
-  dfs(sr, sc, 21);
+  dfs(sr, sc, -1);
 
   for(auto cheat: result) {
     auto [c1, c2] = cheat;
@@ -116,10 +107,9 @@ long long solve(vector<string>& grid) {
     char cell2 = grid[c2.first][c2.second];
     grid[c1.first][c1.second] = '1';
     grid[c2.first][c2.second] = '2';
-    cout << c1.first << " " << c1.second << " " << c2.first << " " << c2.second << endl;
-    // for(auto &r: grid) {
-    //   cout << r << endl;
-    // }
+    for(auto &r: grid) {
+      cout << r << endl;
+    }
     cout << "----------------------" << endl;
     grid[c1.first][c1.second] = cell1;
     grid[c2.first][c2.second] = cell2;
