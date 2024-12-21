@@ -54,7 +54,7 @@ long long solve(vector<string> &codes) {
   auto cheapest = [&](int robot, pair<int, int> start, pair<int, int> dest, auto cheapest) -> long long {
     // if(robot == 0) 
     //   cout << "Robot: " << robot << " " << start.first << " " << start.second << " " << dest.first << " " << dest.second << endl;
-    if(robot == 26) {
+    if(robot == 3) {
       return 1;
     }
     if(memo.find({robot, start, dest}) != memo.end()) {
