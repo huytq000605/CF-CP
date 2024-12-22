@@ -20,24 +20,11 @@ using namespace std;
 static constexpr array<pair<int, int>, 4> ds{{ {1,0}, {0,1}, {0,-1}, {-1,0} }};
 using XY = pair<int, int>;
 
-string ha(deque<int>& dq) {
-  string result{};
-  for(int num: dq) {
-    result += to_string(num);
-  }
-  return result;
-}
-
 long long solve(vector<long long> &secrets)  {
   long long result{};
   const long long PRUNE = 16777216;
-  unordered_map<string, long long> total_bananas;
-
   for(auto &secret: secrets) {
-    unordered_map<string, long long> bananas;
-    deque<int> dq;
     for(int t{}; t < 2000; ++t) {
-      long long original = secret % 10;
       long long mul = secret * 64;
       secret ^= mul;
       secret %= PRUNE;
@@ -47,19 +34,10 @@ long long solve(vector<long long> &secrets)  {
       mul = secret * 2048;
       secret ^= mul;
       secret %= PRUNE;
-      long long current = secret % 10;
-      dq.emplace_back(current - original);
-      if(dq.size() > 4) dq.pop_front();
-      string h = ha(dq);
-      if(bananas.find(h) == bananas.end()) {
-        bananas[h] = current;
-      }
+      // cout << secret << endl;
     }
 
-    for(auto [seq, banana]: bananas) {
-      total_bananas[seq] += banana;
-      result = max(result, total_bananas[seq]);
-    }
+    result += secret;
   }
 
   return result;
