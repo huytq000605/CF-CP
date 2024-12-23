@@ -20,60 +20,94 @@ using namespace std;
 static constexpr array<pair<int, int>, 4> ds{{ {1,0}, {0,1}, {0,-1}, {-1,0} }};
 using XY = pair<int, int>;
 
-string ha(deque<int>& dq) {
-  string result{};
-  for(int num: dq) {
-    result += to_string(num);
+template <typename T> class UF {
+public:
+  unordered_map<T, T> p;
+  unordered_map<T, int> r;
+
+  UF() {
   }
+
+  T find(T u) {
+    if(p.find(u) == p.end()) {
+      p[u] = u;
+      r[u] = 1;
+    }
+    if(p[u] != u) {
+      p[u] = find(p[u]);
+    }
+    return p[u];
+  }
+
+  int uni(T u, T v) {
+    u = find(u);
+    v = find(v);
+    if(u == v) return 0;
+    if(r[u] < r[v]) swap(u, v);
+    p[v] = u;
+    r[u] += r[v];
+    return 0;
+  }
+};
+
+vector<vector<string*>> combinations(vector<string>& vertices, int n) {
+  vector<vector<string*>> result;
+  vector<string*> cur;
+  cur.emplace_back(&vertices[0]);
+
+  function<void(int)> dfs = [&](int i) {
+    if(i == n) {
+      result.push_back(cur);
+      return;
+    }
+
+    for(int j{i}; j < vertices.size(); ++j) {
+      if(cur.size() < n) {
+        cur.emplace_back(&vertices[i]);
+        dfs(j+1);
+        cur.pop_back();
+      }
+    }
+  };
+
   return result;
 }
 
-long long solve(vector<long long> &secrets)  {
-  long long result{};
-  const long long PRUNE = 16777216;
-  unordered_map<string, long long> total_bananas;
-
-  for(auto &secret: secrets) {
-    unordered_map<string, long long> bananas;
-    deque<int> dq;
-    for(int t{}; t < 2000; ++t) {
-      long long original = secret % 10;
-      long long mul = secret * 64;
-      secret ^= mul;
-      secret %= PRUNE;
-      long long div = secret / 32;
-      secret ^= div;
-      secret %= PRUNE;
-      mul = secret * 2048;
-      secret ^= mul;
-      secret %= PRUNE;
-      long long current = secret % 10;
-      dq.emplace_back(current - original);
-      if(dq.size() > 4) dq.pop_front();
-      string h = ha(dq);
-      if(bananas.find(h) == bananas.end()) {
-        bananas[h] = current;
-      }
-    }
-
-    for(auto [seq, banana]: bananas) {
-      total_bananas[seq] += banana;
-      result = max(result, total_bananas[seq]);
-    }
+long long solve(vector<pair<string, string>> &edges)  {
+  unordered_map<string, unordered_set<string>> graph;
+  unordered_set<string> svertices;
+  UF<string> uf{};
+  for(auto [u, v]: edges) {
+    graph[u].emplace(v);
+    graph[v].emplace(u);
+    svertices.emplace(u);
+    svertices.emplace(v);
+    uf.uni(u, v);
   }
 
-  return result;
+  int scc{};
+  for(auto u: svertices) {
+    if(u == uf.find(u)) ++scc;
+  }
+  cout << "scc: " << scc << endl;
+  
+  vector<string> vertices(svertices.begin(), svertices.end());
+  cout << vertices.size() << endl;
+
+  return 0;
 }
 
 int main() {
   string line;
-  vector<long long> secrets;
+  vector<pair<string, string>> edges;
   while(getline(cin, line)) {
-    long long secret;
-    sscanf(line.c_str(), "%lld", &secret);
-    secrets.emplace_back(secret);
+    if(line == "") break;
+    string u{}, v{};
+    u = line.substr(0, 2);
+    v = line.substr(3, 2);
+    edges.emplace_back(u, v);
   }
-  auto result = solve(secrets);
+  auto result = solve(edges);
   cout << "Result: " <<  result << endl;
 }
 
