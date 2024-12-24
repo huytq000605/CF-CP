@@ -53,15 +53,13 @@ public:
 long long solve(unordered_map<string, long long> &wires) {
   vector<string> wire_names;
   for(auto [k, v]: wires) {
-    if(k[0] == 'z') {
-      wire_names.emplace_back(k);
-    }
+    if(k[0] == 'z') wire_names.emplace_back(k);
   }
   sort(wire_names.begin(), wire_names.end());
   long long power{1};
   long long result{};
   for(auto k: wire_names) {
-    // cout << k << " " << wires[k] << " " << power << endl;
+    cout << k << " " << wires[k] << " " << power << endl;
     result += wires[k] * power;
     power <<= 1;
   }
@@ -91,9 +89,9 @@ int main() {
     }
   }
 
-  function<long long(const string &)> find = [&](const string& wire) {
+  function<long long(string)> find = [&](string wire) {
     if(wires.find(wire) != wires.end()) return wires[wire];
-    auto &[wire1, wire2, op] = equations[wire];
+    auto [wire1, wire2, op] = equations[wire];
     long long res{};
     if(op == "XOR") {
         res = find(wire1) ^ find(wire2);
@@ -105,10 +103,9 @@ int main() {
     wires[wire] = res;
     return res;
   };
-  for(auto &[wire, _]: equations) {
+  for(auto [wire, _]: equations) {
     find(wire);
   }
-  cout << wires.size() << endl;
 
   auto result = solve(wires);
   cout << "Result: " <<  result << endl;
