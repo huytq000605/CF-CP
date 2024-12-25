@@ -50,62 +50,67 @@ public:
   }
 };
 
-long long solve(vector<vector<int>> &locks, vector<vector<int>> &keys) {
-  long long result{};
-  for(auto &lock: locks) {
-    // for(int i{}; i < 5; ++i) {
-    //   cout << lock[i] << " ";
-    // }
-    // cout << endl;
-    for(auto &key: keys) {
-      bool fit{true};
-      // for(int i{}; i < 5; ++i) {
-      //   cout << key[i] << " ";
-      // }
-      // cout << endl;
-      for(int i{}; i < 5; ++i) {
-        if(lock[i] + key[i] > 5) fit = false;
-      }
-
-      if(fit) ++result;
+long long solve(unordered_map<string, long long> &wires) {
+  vector<string> wire_names;
+  for(auto [k, v]: wires) {
+    if(k[0] == 'z') {
+      wire_names.emplace_back(k);
     }
   }
-
+  sort(wire_names.begin(), wire_names.end());
+  long long power{1};
+  long long result{};
+  for(auto k: wire_names) {
+    // cout << k << " " << wires[k] << " " << power << endl;
+    result += wires[k] * power;
+    power <<= 1;
+  }
   return result;
 }
 
 int main() {
   string line;
-  vector<vector<int>> locks;
-  vector<vector<int>> keys;
-  vector<int> vals(5, 0);
-  bool is_key{};
-  bool determined{false};
+  unordered_map<string, long long> wires;
+  unordered_map<string, tuple<string, string, string>> equations;
+  bool direct_value{true};
   while(getline(cin, line)) {
     if(line == "") {
-      determined = false;
-      if(is_key) {
-        keys.push_back(vals);
-      } else {
-        locks.push_back(vals);
-      }
-      for(int i{}; i < 5; ++i) vals[i] = 0;
+      direct_value = false;
       continue;
     }
-    if(!determined) {
-      determined = true;
-      is_key = line[0] == '.';
-      if(is_key) {
-        for(int i{}; i < 5; ++i) vals[i] = -1;
-      }
-      continue;
-    }
-    for(int i{} ; i < 5; ++i) {
-      vals[i] += line[i] == '#';
+    istringstream ss(line);
+    if(direct_value) {
+      string wire{};
+      long long v{};
+      ss >> wire >> v;
+      wires[wire.substr(0, wire.size() - 1)] = v;
+    } else {
+      string wire1{}, wire2{}, op{}, wire{}, strtemp{};
+      ss >> wire1 >> op >> wire2 >> strtemp >> wire;
+      equations[wire] = {wire1, wire2, op};
     }
   }
 
-  auto result = solve(locks, keys);
+  function<long long(const string &)> find = [&](const string& wire) {
+    if(wires.find(wire) != wires.end()) return wires[wire];
+    auto &[wire1, wire2, op] = equations[wire];
+    long long res{};
+    if(op == "XOR") {
+        res = find(wire1) ^ find(wire2);
+    } else if(op == "OR") {
+        res = find(wire1) | find(wire2);
+    } else if(op == "AND") {
+        res = find(wire1) & find(wire2);
+    }
+    wires[wire] = res;
+    return res;
+  };
+  for(auto &[wire, _]: equations) {
+    find(wire);
+  }
+  cout << wires.size() << endl;
+
+  auto result = solve(wires);
   cout << "Result: " <<  result << endl;
 }
 
